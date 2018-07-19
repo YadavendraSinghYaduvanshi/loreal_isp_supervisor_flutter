@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:loreal_isp_supervisor_flutter/database/database.dart';
 
 class Main_Activity extends StatefulWidget {
@@ -15,16 +16,52 @@ class _Main_ActivityState extends State<Main_Activity>
   void initState() {
     // TODO: implement initState
     _loadCounter();
+
     super.initState();
     WidgetsBinding.instance.addObserver(this);
   }
 
+  _fetchData(String user_id) {
+
+    print("Attempting to fetch... ");
+
+    final url =
+        "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/GetAll";
+
+    Map lMap = {
+      "Downloadtype": "CITY_MASTER",
+      "Username": user_id,
+      "per1": "0",
+      "per2": "0",
+      "per3": "0",
+      "per4": "0",
+      "per5": "0",
+
+  };
+
+    String lData = json.encode(lMap);
+    Map<String, String> lHeaders = {};
+    lHeaders = {
+      "Content-type": "application/json",
+      "Accept": "application/json"
+    };
+    http.post(url, body: lData, headers: lHeaders).then((response) {
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+      var test = JSON.decode(response.body);
+
+      //var test1 = json.decode(test);
+
+    });
+  }
+
   var notice_url = "http://gskgtm.parinaam.in/notice/notice.html";
   var visit_date;
+  static var userId;
 
   static BuildContext context_global;
 
-  static var profile_name = "test";
+  static var profile_name = "";
 
   static final profile = new Container(
         height: 150.0,
@@ -101,25 +138,24 @@ class _Main_ActivityState extends State<Main_Activity>
         ]),
       ));
 
-  static Text profile_txt = new Text("Upload Data",
+  static Text download_txt = new Text("Download Data",
       style: new TextStyle(
           color: Colors.blue, fontSize: 20.0, fontStyle: FontStyle.normal));
 
-  static final profile_parent = new GestureDetector(
+  static final download = new GestureDetector(
       onTap: () {
         Navigator.of(context_global).pop();
         print("Profile clicked");
-        //Navigator.of(context_global).pushNamed('/Profile');
+        Navigator.of(context_global).pushNamed('/Download');
       },
-      child: new Container(
+      child:  new Container(
         child: new Row(children: <Widget>[
-          new Image(
-            image: new AssetImage('assets/upload_grey.png'),
-            height: 30.0,
-            width: 30.0,
+          new CircleAvatar(
+            backgroundImage: new AssetImage('assets/download.png'),
+            radius: 20.0,
           ),
           new SizedBox(width: 10.0),
-          profile_txt
+          download_txt
         ]),
       ));
 
@@ -158,7 +194,7 @@ class _Main_ActivityState extends State<Main_Activity>
   );
   static Padding padding4 = new Padding(
     padding: pad,
-    child: profile_parent,
+    child: download,
   );
   static Padding padding5 = new Padding(
     padding: pad,
@@ -169,7 +205,7 @@ class _Main_ActivityState extends State<Main_Activity>
     profile,
     padding2,
     padding3,
-    /*padding4,*/
+    padding4,
     padding5,
   ];
   static ListView listview = new ListView(children: children);
@@ -222,12 +258,12 @@ class _Main_ActivityState extends State<Main_Activity>
   }
 
   //Loading counter value on start
-  _loadCounter() async {
+   _loadCounter() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     visit_date = prefs.getString('Currentdate');
     notice_url = prefs.getString('Notice');
-
-
+    userId = prefs.getString('Userid');
+    //_fetchData(userId);
   }
 
   static Future<Null> _exitDialog() async {

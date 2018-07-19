@@ -32,7 +32,7 @@ class _report_listState extends State<ReportList> {
             ),
             onTap: () {
               print("attendance");
-              Navigator.of(context).pushNamed('/Attendance');
+              Navigator.of(context).pushNamed('/AttendanceList');
             },
           ),
           new MyCard(

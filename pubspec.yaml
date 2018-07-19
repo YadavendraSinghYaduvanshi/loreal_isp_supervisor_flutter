@@ -53,6 +53,7 @@ flutter:
         - assets/exit.png
         - assets/reports.png
         - assets/mark_attendance.png
+        - assets/download.png
 
   # assets:
   #  - images/a_dot_burr.jpeg

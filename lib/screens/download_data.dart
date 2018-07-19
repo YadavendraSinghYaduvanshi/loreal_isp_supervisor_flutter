@@ -21,7 +21,7 @@ class _DownloadDataState extends State<DownloadData> {
     super.initState();
   }
 
-  List<String> items = ["Table_Structure", "Journey_Plan"];
+  List<String> items = ["Table_Structure", "CITY_MASTER", "Non_Working_Reason"];
 
   @override
   Widget build(BuildContext context) {
@@ -30,14 +30,22 @@ class _DownloadDataState extends State<DownloadData> {
 
   _fetchData(var index) {
 
+    _openDb();
+
     print("Attempting to fetch... " + items[index]);
 
     final url =
-        "http://gskgtm.parinaam.in/Webservice/Gskwebservice.svc/DownloadAll";
+        "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/GetAll";
 
     Map lMap = {
       "Downloadtype": items[index],
       "Username": user_id,
+      "per1": "0",
+      "per2": "0",
+      "per3": "0",
+      "per4": "0",
+      "per5": "0",
+
     };
 
     String lData = json.encode(lMap);
@@ -53,17 +61,32 @@ class _DownloadDataState extends State<DownloadData> {
 
       var test1 = json.decode(test);
 
-      if(index==0){
-        var data = test1['Table_Structure'][16];
-        var query = data['SqlText'];
+      switch(items[index]){
 
-        _insert(query);
+        case "Table_Structure":
 
+          var data = test1['Table_Structure'];
+          for(int i=0; i<data.size; i++){
+            _create_table(data[i]['SqlText']);
+          }
+
+          break;
+
+        case "CITY_MASTER":
+
+          break;
+
+        case "Non_Working_Reason":
+
+          break;
+      }
+
+      if(index+1 < items.length){
         _fetchData(++index);
-
       }
       else{
-
+        Navigator.pop(context, DialogDemoAction.cancel);
+        Navigator.of(context).pop();
       }
 
     });
@@ -75,31 +98,43 @@ class _DownloadDataState extends State<DownloadData> {
     visit_date = prefs.getString('Currentdate');
     user_id = prefs.getString('Userid');
 
-    showDialog(
+    showDialog<DialogDemoAction>(
       context: context,
       barrierDismissible: false,
       child: new Dialog(
-        child: new Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            new CircularProgressIndicator(),
-            new Text("Downloading"),
-          ],
-        ),
+          child: new Padding(padding: EdgeInsets.all(25.0),
+            child: new Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                new CircularProgressIndicator(),
+                new SizedBox(width: 20.0),
+                new Text("Downloading", style: new TextStyle(fontSize: 18.0),),
+              ],
+            ),
+          )
       ),
     );
 
     _fetchData(0);
   }
 
+  DatabaseISP database;
   //Loading counter value on start
-  _insert(var query) async {
+  _openDb() async {
     String path = await initDeleteDb();
-    DatabaseISP database = new DatabaseISP();
+    database = new DatabaseISP();
     await database.open(path);
-
-    await database.create(query);
-
-    await database.close();
+    //await database.close();
   }
+
+  _create_table(var query) async{
+    await database.create(query);
+  }
+}
+
+enum DialogDemoAction {
+  cancel,
+  discard,
+  disagree,
+  agree,
 }

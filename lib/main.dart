@@ -7,6 +7,8 @@ import 'screens/attendance_report.dart';
 import 'screens/login_new.dart';
 import 'screens/splash_screen.dart';
 import 'screens/mark_attendance.dart';
+import 'screens/promoter_list.dart';
+import 'screens/attendance.dart';
 
 void main() => runApp(new MyApp());
 
@@ -23,6 +25,8 @@ class MyApp extends StatelessWidget {
         '/Attendance': (BuildContext context)=>new Attendance(),
         '/Login': (BuildContext context)=>new LoginNew(),
         '/MarkAttendance': (BuildContext context)=>new MarAttendance(),
+        '/PromoterList': (BuildContext context)=>new PromoterList(),
+        '/AttendanceList': (BuildContext context)=>new AttendanceList(),
       },
       home: new SplashScreen(),
       //home: new LoginNew(),

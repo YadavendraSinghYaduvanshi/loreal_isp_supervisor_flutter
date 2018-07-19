@@ -205,7 +205,7 @@ class _LoginNewState extends State<LoginNew> {
               children: [
                 new CircularProgressIndicator(),
                 new SizedBox(width: 20.0),
-                new Text("Loading...", style: new TextStyle(fontSize: 18.0),),
+                new Text("Verifying...", style: new TextStyle(fontSize: 18.0),),
               ],
             ),
           )
@@ -272,10 +272,10 @@ class _LoginNewState extends State<LoginNew> {
         var data = test1['Result'][0];
 
         print(test1['Result'][0]['App_Path']);
-        var app_version = data['App_Version'];
+/*        var app_version = data['App_Version'];
         var app_path = data['App_Path'];
         var current_date = data['Currentdate'];
-        var notice_board = data['Notice'];
+        var notice_board = data['Notice'];*/
 
         _incrementCounter(data);
       /*  Navigator.of(context_global).pop();
@@ -297,6 +297,7 @@ class _LoginNewState extends State<LoginNew> {
     prefs.setString('Password', _psw.text);
     prefs.setString('Currentdate', data['Currentdate']);
     prefs.setString('Notice', data['Notice']);
+    prefs.setString('Designation', data['RIGHTNAME']);
 
     //_loadCounter();
   }
