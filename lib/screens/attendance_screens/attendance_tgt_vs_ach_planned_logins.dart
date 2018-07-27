@@ -6,20 +6,22 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AttendanceDataUploadstatus extends StatefulWidget {
+class AttendanceTgtVsAchPlannedLogins extends StatefulWidget {
+/*
   String promoter_id;
 
   // In the constructor, require a Todo
-  AttendanceDataUploadstatus({Key key, @required this.promoter_id})
+  AttendanceTgtVsAchPlannedLogins({Key key, @required this.promoter_id})
       : super(key: key);
+*/
 
   @override
-  _AttendanceDataUploadstatusState createState() =>
-      _AttendanceDataUploadstatusState();
+  _AttendanceTgtVsAchPlannedLoginsState createState() =>
+      _AttendanceTgtVsAchPlannedLoginsState();
 }
 
-class _AttendanceDataUploadstatusState
-    extends State<AttendanceDataUploadstatus> {
+class _AttendanceTgtVsAchPlannedLoginsState
+    extends State<AttendanceTgtVsAchPlannedLogins> {
   String user_id, designation, promoter_id;
 
   @override
@@ -27,7 +29,7 @@ class _AttendanceDataUploadstatusState
     return new Scaffold(
         appBar: new AppBar(
           title:
-              new Text("Attendance Data Upload Status - " + widget.promoter_id),
+          new Text("Tgt vs Ach on Planned Logins as on date"),
         ),
         body: Container(
           decoration: new BoxDecoration(
@@ -79,23 +81,22 @@ class _AttendanceDataUploadstatusState
                 ),
               ),
               new Expanded(
-                  child: FutureBuilder<List<ATTENDANCE_DATAUPLOAD_STATUS>>(
-                future: fetchData("${widget.promoter_id}"),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) print(snapshot.error);
-                  //_loadCounter();
-                  return snapshot.hasData
-                      ? StatusList(status: snapshot.data)
-                      : Center(child: CircularProgressIndicator());
-                },
-              ))
+                  child: FutureBuilder<List<TARGET_VS_ACH_PLANNED_LOGINS>>(
+                    future: fetchData(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) print(snapshot.error);
+                      //_loadCounter();
+                      return snapshot.hasData
+                          ? StatusList(status: snapshot.data)
+                          : Center(child: CircularProgressIndicator());
+                    },
+                  ))
             ],
           ),
         ));
   }
 
-  Future<List<ATTENDANCE_DATAUPLOAD_STATUS>> fetchData(
-      String promoter_id) async {
+  Future<List<TARGET_VS_ACH_PLANNED_LOGINS>> fetchData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     //visit_date = prefs.getString('CURRENTDATE');
     user_id = prefs.getString('Userid');
@@ -106,10 +107,10 @@ class _AttendanceDataUploadstatusState
     final url = "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/GetAll";
 
     Map lMap = {
-      "Downloadtype": "ATTENDANCE_DATAUPLOAD_STATUS",
+      "Downloadtype": "TARGET_VS_ACH_PLANNED_LOGINS",
       "Username": user_id,
       "per1": designation,
-      "per2": promoter_id,
+      "per2": user_id,
       "per3": "0",
       "per4": "0",
       "per5": "0",
@@ -132,13 +133,13 @@ class _AttendanceDataUploadstatusState
   }
 }
 
-List<ATTENDANCE_DATAUPLOAD_STATUS> parsePhotos(String responseBody) {
+List<TARGET_VS_ACH_PLANNED_LOGINS> parsePhotos(String responseBody) {
   var test = JSON.decode(responseBody);
 
   var test1 = json.decode(test);
-  var list = test1['ATTENDANCE_DATAUPLOAD_STATUS'] as List;
-  List<ATTENDANCE_DATAUPLOAD_STATUS> statusList =
-      list.map((i) => ATTENDANCE_DATAUPLOAD_STATUS.fromJson(i)).toList();
+  var list = test1['TARGET_VS_ACH_PLANNED_LOGINS'] as List;
+  List<TARGET_VS_ACH_PLANNED_LOGINS> statusList =
+  list.map((i) => TARGET_VS_ACH_PLANNED_LOGINS.fromJson(i)).toList();
 
   return statusList;
 
@@ -147,25 +148,25 @@ List<ATTENDANCE_DATAUPLOAD_STATUS> parsePhotos(String responseBody) {
   return parsed.map<Promoter>((json) => Promoter.fromJson(json)).toList();*/
 }
 
-class ATTENDANCE_DATAUPLOAD_STATUS {
-  final String JCP_DATE;
-  final String DATA_UPLOAD;
-  final String ATTENDANCE_STATUS;
+class TARGET_VS_ACH_PLANNED_LOGINS {
+  final String PROMOTER;
+  final String PLANNED;
+  final String COVERED;
 
-  ATTENDANCE_DATAUPLOAD_STATUS(
-      {this.JCP_DATE, this.DATA_UPLOAD, this.ATTENDANCE_STATUS});
+  TARGET_VS_ACH_PLANNED_LOGINS(
+      {this.PROMOTER, this.PLANNED, this.COVERED});
 
-  factory ATTENDANCE_DATAUPLOAD_STATUS.fromJson(Map<String, dynamic> json) {
-    return ATTENDANCE_DATAUPLOAD_STATUS(
-      JCP_DATE: json['JCP_DATE'] as String,
-      DATA_UPLOAD: json['DATA_UPLOAD'] as String,
-      ATTENDANCE_STATUS: json['ATTENDANCE_STATUS'] as String,
+  factory TARGET_VS_ACH_PLANNED_LOGINS.fromJson(Map<String, dynamic> json) {
+    return TARGET_VS_ACH_PLANNED_LOGINS(
+      PROMOTER: json['PROMOTER'] as String,
+      PLANNED: json['PLANNED'] as String,
+      COVERED: json['COVERED'] as String,
     );
   }
 }
 
 class StatusList extends StatelessWidget {
-  final List<ATTENDANCE_DATAUPLOAD_STATUS> status;
+  final List<TARGET_VS_ACH_PLANNED_LOGINS> status;
 
   StatusList({Key key, this.status}) : super(key: key);
 
@@ -176,53 +177,53 @@ class StatusList extends StatelessWidget {
       itemBuilder: (context, index) {
         return new Card(
             child: new GestureDetector(
-          onTap: () {
-            print("attendance");
-            /* Navigator.push(
+              onTap: () {
+                print("attendance");
+                /* Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => AttendanceDataUploadstatus(promoter_id: status[index].JCP_DATE),
+                    builder: (context) => AttendanceTgtVsAchPlannedLogins(promoter_id: status[index].JCP_DATE),
                   ),
                 );*/
-          },
-          child: new Container(
-            margin: EdgeInsets.all(10.0),
-            child: new Row(
-              children: <Widget>[
-                new Expanded(
-                    child: new Center(
-                  child: new Text(
-                    status[index].JCP_DATE,
-                    style: new TextStyle(
-                        color: Colors.black,
-                        fontSize: 20.0,
-                        fontStyle: FontStyle.normal),
-                  ),
-                )),
-                new Expanded(
-                    child: new Center(
-                  child: new Text(
-                    status[index].DATA_UPLOAD,
-                    style: new TextStyle(
-                        color: Colors.black,
-                        fontSize: 20.0,
-                        fontStyle: FontStyle.normal),
-                  ),
-                )),
-                new Expanded(
-                    child: new Center(
-                  child: new Text(
-                    status[index].ATTENDANCE_STATUS,
-                    style: new TextStyle(
-                        color: Colors.black,
-                        fontSize: 20.0,
-                        fontStyle: FontStyle.normal),
-                  ),
-                )),
-              ],
-            ),
-          ),
-        ));
+              },
+              child: new Container(
+                margin: EdgeInsets.all(10.0),
+                child: new Row(
+                  children: <Widget>[
+                    new Expanded(
+                        child: new Center(
+                          child: new Text(
+                            status[index].PROMOTER,
+                            style: new TextStyle(
+                                color: Colors.black,
+                                fontSize: 20.0,
+                                fontStyle: FontStyle.normal),
+                          ),
+                        )),
+                    new Expanded(
+                        child: new Center(
+                          child: new Text(
+                            status[index].PLANNED,
+                            style: new TextStyle(
+                                color: Colors.black,
+                                fontSize: 20.0,
+                                fontStyle: FontStyle.normal),
+                          ),
+                        )),
+                    new Expanded(
+                        child: new Center(
+                          child: new Text(
+                            status[index].COVERED,
+                            style: new TextStyle(
+                                color: Colors.black,
+                                fontSize: 20.0,
+                                fontStyle: FontStyle.normal),
+                          ),
+                        )),
+                  ],
+                ),
+              ),
+            ));
       },
     );
   }

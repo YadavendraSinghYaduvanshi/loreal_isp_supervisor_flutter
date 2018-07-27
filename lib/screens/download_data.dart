@@ -3,7 +3,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:loreal_isp_supervisor_flutter/database/database.dart';
+import 'package:loreal_isp_supervisor_flutter/database/dbhelper.dart';
+import 'package:loreal_isp_supervisor_flutter/gettersetter/all_gettersetter.dart';
 
 class DownloadData extends StatefulWidget {
   @override
@@ -21,16 +22,15 @@ class _DownloadDataState extends State<DownloadData> {
     super.initState();
   }
 
-  List<String> items = ["Table_Structure", "CITY_MASTER", "Non_Working_Reason"];
+  //List<String> items = ["Table_Structure", "JOURNEY_PLAN_SUP", "NON_WORKING_REASON"];
+  List<String> items = ["Table_Structure", "JOURNEY_PLAN_SUP"];
 
   @override
   Widget build(BuildContext context) {
     return Container();
   }
 
-  _fetchData(var index) {
-
-    _openDb();
+  _fetchData(var index) async {
 
     print("Attempting to fetch... " + items[index]);
 
@@ -65,19 +65,25 @@ class _DownloadDataState extends State<DownloadData> {
 
         case "Table_Structure":
 
-          var data = test1['Table_Structure'];
-          for(int i=0; i<data.size; i++){
-            _create_table(data[i]['SqlText']);
+          List<Table_Structure> table_list=  parseTableStructure(response.body);
+
+          //var data = test1['Table_Structure'];
+          for(int i=0; i<table_list.length; i++){
+            _create_table(table_list[i].SqlText);
           }
 
           break;
 
-        case "CITY_MASTER":
+        case "JOURNEY_PLAN_SUP":
+
+          _insertData(response.body, "JOURNEY_PLAN_SUP");
+
+          //List<JOURNEY_PLAN_SUP> table_list =  parseSUPJCP(response.body);
 
           break;
 
-        case "Non_Working_Reason":
-
+        case "NON_WORKING_REASON":
+          _insertData(response.body, "NON_WORKING_REASON");
           break;
       }
 
@@ -93,9 +99,15 @@ class _DownloadDataState extends State<DownloadData> {
   }
 
   //Loading counter value on start
-  _loadCounter() async {
+  Future<String> _loadCounter() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    visit_date = prefs.getString('Currentdate');
+
+    SharedPreferences.getInstance().then((SharedPreferences sp) {
+      prefs = sp;
+      visit_date = prefs.getString('CURRENTDATE');
+      // will be null if never previously saved
+    });
+    visit_date = prefs.getString('CURRENTDATE');
     user_id = prefs.getString('Userid');
 
     showDialog<DialogDemoAction>(
@@ -115,20 +127,29 @@ class _DownloadDataState extends State<DownloadData> {
       ),
     );
 
-    _fetchData(0);
+    //var t1 = await _openDb();
+    var t2 = await _fetchData(0);
   }
 
-  DatabaseISP database;
+/*  DatabaseISP database;
   //Loading counter value on start
   _openDb() async {
     String path = await initDeleteDb();
     database = new DatabaseISP();
     await database.open(path);
     //await database.close();
+  }*/
+
+  _create_table(var query){
+    //await database.create(query);
+    var dbHelper = DBHelper();
+    dbHelper.create_table(query);
   }
 
-  _create_table(var query) async{
-    await database.create(query);
+  _insertData(var responsebody, String table_name){
+    //await database.insertData(responsebody, table_name);
+    var dbHelper = DBHelper();
+    dbHelper.insertData(responsebody, table_name);
   }
 }
 
@@ -138,3 +159,48 @@ enum DialogDemoAction {
   disagree,
   agree,
 }
+
+
+List<Table_Structure> parseTableStructure(String responseBody) {
+  var test = JSON.decode(responseBody);
+
+  var test1 = json.decode(test);
+  var list = test1['Table_Structure'] as List;
+  List<Table_Structure> statusList =
+  list.map((i) => Table_Structure.fromJson(i)).toList();
+
+  return statusList;
+
+  /* final parsed = json.decode(responseBody).cast<Map<String, dynamic>>();
+
+  return parsed.map<Promoter>((json) => Promoter.fromJson(json)).toList();*/
+}
+
+class Table_Structure {
+  final String SqlText;
+
+  Table_Structure(
+      {this.SqlText});
+
+  factory Table_Structure.fromJson(Map<String, dynamic> json) {
+    return Table_Structure(
+      SqlText: json['SqlText'] as String,
+    );
+  }
+}
+
+List<JOURNEY_PLAN_SUP> parseSUPJCP(String responseBody) {
+  var test = JSON.decode(responseBody);
+
+  var test1 = json.decode(test);
+  var list = test1['JOURNEY_PLAN_SUP'] as List;
+  List<JOURNEY_PLAN_SUP> statusList =
+  list.map((i) => JOURNEY_PLAN_SUP.fromJson(i)).toList();
+
+  return statusList;
+
+  /* final parsed = json.decode(responseBody).cast<Map<String, dynamic>>();
+
+  return parsed.map<Promoter>((json) => Promoter.fromJson(json)).toList();*/
+}
+

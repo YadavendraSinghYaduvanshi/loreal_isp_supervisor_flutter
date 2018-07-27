@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:loreal_isp_supervisor_flutter/utils/card.dart';
+import 'dart:async';
+import 'package:camera/camera.dart';
+import 'camera_screen.dart';
+
 
 class ReportList extends StatefulWidget {
   @override
@@ -35,19 +39,25 @@ class _report_listState extends State<ReportList> {
               Navigator.of(context).pushNamed('/AttendanceList');
             },
           ),
-          new MyCard(
-            title: new Text(
-              "Promoter Performance",
-              style: new TextStyle(
-                  color: Colors.blue,
-                  fontSize: 20.0,
-                  fontStyle: FontStyle.italic),
+          new GestureDetector(
+            child:  new MyCard(
+              title: new Text(
+                "Promoter Performance",
+                style: new TextStyle(
+                    color: Colors.blue,
+                    fontSize: 20.0,
+                    fontStyle: FontStyle.italic),
+              ),
+              image: new CircleAvatar(
+                backgroundImage: new AssetImage('assets/promoter_performance.png'),
+                radius: 30.0,
+              ),
             ),
-            image: new CircleAvatar(
-              backgroundImage: new AssetImage('assets/promoter_performance.png'),
-              radius: 30.0,
-            ),
+            onTap: (){
+              opencamera();
+            },
           ),
+
           new MyCard(
             title: new Text(
               "Manning / Leaves / Absenteeism",
@@ -78,4 +88,24 @@ class _report_listState extends State<ReportList> {
       ),
     );
   }
+
+  List<CameraDescription> cameras;
+
+  Future<Null> opencamera() async {
+    // Fetch the available cameras before initializing the app.
+    try {
+      cameras = await availableCameras();
+    } on CameraException catch (e) {
+      logError(e.code, e.description);
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CameraExampleHome(cameras: cameras),
+      ),
+    );
+  }
+
+  void logError(String code, String message) =>
+      print('Error: $code\nError Message: $message');
 }

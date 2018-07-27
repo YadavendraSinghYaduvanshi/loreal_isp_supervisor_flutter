@@ -29,6 +29,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.3"
+  camera:
+    dependency: "direct main"
+    description:
+      name: camera
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.1"
   charcode:
     dependency: transitive
     description:
@@ -221,6 +228,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.5.1"
+  path_provider:
+    dependency: "direct main"
+    description:
+      name: path_provider
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.0"
   plugin:
     dependency: transitive
     description:
@@ -284,6 +298,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.2"
+  simple_permissions:
+    dependency: "direct main"
+    description:
+      name: simple_permissions
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.5"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -316,7 +337,7 @@ packages:
       name: sqflite
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.11.0+1"
+    version: "0.11.0+5"
   stack_trace:
     dependency: transitive
     description:
@@ -344,7 +365,7 @@ packages:
       name: synchronized
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.5.0+1"
+    version: "1.5.1"
   term_glyph:
     dependency: transitive
     description:
@@ -380,6 +401,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.6"
+  video_player:
+    dependency: "direct main"
+    description:
+      name: video_player
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.2"
   watcher:
     dependency: transitive
     description:
@@ -402,5 +430,5 @@ packages:
     source: hosted
     version: "2.1.13"
 sdks:
-  dart: ">=2.0.0-dev.52.0 <=2.0.0-dev.58.0.flutter-f981f09760"
-  flutter: ">=0.1.4 <2.0.0"
+  dart: ">=2.0.0-dev.58 <=2.0.0-dev.58.0.flutter-f981f09760"
+  flutter: ">=0.2.5 <2.0.0"

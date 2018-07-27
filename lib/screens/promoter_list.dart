@@ -17,7 +17,7 @@ class _PromoterListState extends State<PromoterList> {
 
   _loadCounter() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    //visit_date = prefs.getString('Currentdate');
+    //visit_date = prefs.getString('CURRENTDATE');
     user_id = prefs.getString('Userid');
     designation = prefs.getString('Designation');
 
@@ -54,7 +54,7 @@ class _PromoterListState extends State<PromoterList> {
   Future<List<Promoter>> fetchData() async {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    //visit_date = prefs.getString('Currentdate');
+    //visit_date = prefs.getString('CURRENTDATE');
     user_id = prefs.getString('Userid');
     designation = prefs.getString('Designation');
 

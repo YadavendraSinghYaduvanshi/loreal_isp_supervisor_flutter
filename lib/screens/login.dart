@@ -205,7 +205,7 @@ class Login extends StatelessWidget {
         print(test1['Result'][0]['App_Path']);
         var app_version = data['App_Version'];
         var app_path = data['App_Path'];
-        var current_date = data['Currentdate'];
+        var current_date = data['CURRENTDATE'];
         var notice_board = data['Notice'];
 
         _incrementCounter(data);
@@ -227,7 +227,7 @@ class Login extends StatelessWidget {
 
     prefs.setString('Userid', _uid.text);
     prefs.setString('Password', _psw.text);
-    prefs.setString('Currentdate', data['Currentdate']);
+    prefs.setString('CURRENTDATE', data['CURRENTDATE']);
     prefs.setString('Notice', data['Notice']);
 
     //_loadCounter();
@@ -236,6 +236,6 @@ class Login extends StatelessWidget {
   //Loading counter value on start
   _loadCounter() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var current_date = prefs.getString('Currentdate');
+    var current_date = prefs.getString('CURRENTDATE');
   }
 }
