@@ -4,10 +4,13 @@ import 'package:sqflite/sqflite.dart';
 import 'dart:io';
 
 import 'package:path/path.dart';
+import 'package:loreal_isp_supervisor_flutter/gettersetter/all_gettersetter.dart';
+import 'dart:convert';
 
 
 class DatabaseISP {
   Database db;
+  String visit_date = "VISIT_DATE";
 
   Future open(String path) async {
     db = await openDatabase(path, version: 1,
@@ -22,13 +25,28 @@ create table $tableTodo (
   }
 
    create(var query) async {
-    await db.execute(query);
+     db.execute(query);
   }
 
-  /*Future<Todo> insert(Todo todo) async {
-    todo.id = await db.insert(tableTodo, todo.toMap());
+ /*Future<JOURNEY_PLAN_SUP> insert(JOURNEY_PLAN_SUP todo) async {
+    todo.id = await db.insert("JOURNEY_PLAN_SUP", todo.toMap());
     return todo;
   }*/
+Future insertData(String responseBody, String table_name) async {
+
+  await db.delete(table_name);
+
+  var test = JSON.decode(responseBody);
+
+  var test_map = json.decode(test);
+  var list = test_map[table_name] as List;
+
+  var primary_key;
+  for(int i=0;i<list.length;i++){
+    primary_key = db.insert(table_name, list[i]);
+  }
+    return primary_key;
+  }
 
 /*  Future<Todo> getTodo(int id) async {
     List<Map> maps = await db.query(tableTodo,
@@ -52,7 +70,18 @@ create table $tableTodo (
 
   Future close() async => db.close();
 
-
+  // Retrieving employees from JCP Tables
+  Future<List<JCPGetterSetter>> getJCPList(String visit_date) async {
+    var dbClient = await db;
+    List<Map> list = await dbClient.rawQuery("SELECT * FROM JOURNEY_PLAN_SUP where VISIT_DATE= '" + visit_date +"'");
+    List<JCPGetterSetter> storelist = new List();
+    for (int i = 0; i < list.length; i++) {
+      storelist.add(new JCPGetterSetter(list[i]["STORE_CD"], list[i]["EMP_CD"], list[i]["VISIT_DATE"], list[i]["KEYACCOUNT"], list[i]["STORENAME"], list[i]["CITY"], list[i]["STORETYPE"],
+        list[i]["UPLOAD_STATUS"],list[i]["CHECKOUT_STATUS"],list[i]["LATTITUDE"],list[i]["LONGITUDE"],list[i]["GEO_TAG"],list[i]["CHANNEL_CD"],list[i]["CHANNEL"]));
+    }
+    print(storelist.length);
+    return storelist;
+  }
 }
 
 // return the path
@@ -74,3 +103,4 @@ Future<String> initDeleteDb() async {
   }
   return path;
 }
+

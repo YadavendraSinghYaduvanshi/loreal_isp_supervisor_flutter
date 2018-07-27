@@ -274,7 +274,7 @@ class _LoginNewState extends State<LoginNew> {
         print(test1['Result'][0]['App_Path']);
 /*        var app_version = data['App_Version'];
         var app_path = data['App_Path'];
-        var current_date = data['Currentdate'];
+        var current_date = data['CURRENTDATE'];
         var notice_board = data['Notice'];*/
 
         _incrementCounter(data);
@@ -282,22 +282,24 @@ class _LoginNewState extends State<LoginNew> {
         Navigator.of(context_global).pushNamed('/MainPage');
 */
         //Route route = MaterialPageRoute(builder: (context_global) => Main_Activity());
-        Navigator.of(context_global).pop();
-        Navigator.pushReplacementNamed(context_global, '/MainPage');
+
       }
 
     });
   }
 
   //Incrementing counter after click
-  _incrementCounter(var data) async {
+  Future _incrementCounter(var data) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     prefs.setString('Userid', _uid.text);
     prefs.setString('Password', _psw.text);
-    prefs.setString('Currentdate', data['Currentdate']);
+    prefs.setString('CURRENTDATE', data['CURRENTDATE']);
     prefs.setString('Notice', data['Notice']);
     prefs.setString('Designation', data['RIGHTNAME']);
+
+    Navigator.of(context_global).pop();
+    Navigator.pushReplacementNamed(context_global, '/MainPage');
 
     //_loadCounter();
   }

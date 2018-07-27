@@ -21,7 +21,7 @@ class _AttendanceListState extends State<AttendanceList> {
 
   _loadCounter() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    //visit_date = prefs.getString('Currentdate');
+    //visit_date = prefs.getString('CURRENTDATE');
     user_id = prefs.getString('Userid');
     designation = prefs.getString('Designation');
 
@@ -51,36 +51,55 @@ class _AttendanceListState extends State<AttendanceList> {
               if(designation=="Supervisor"){
                 Navigator.of(context).pushNamed('/PromoterList');
               }
+              else{
+
+              }
 
             },
           ),
-          new MyCardSimple(
-            title: new Text(
-              "Defaulters with 3 days absent",
-              style: new TextStyle(
-                  color: Colors.blue,
-                  fontSize: 20.0,
-                  fontStyle: FontStyle.italic),
+          new GestureDetector(
+            child:  new MyCardSimple(
+              title: new Text(
+                "Defaulters with 3 days absent",
+                style: new TextStyle(
+                    color: Colors.blue,
+                    fontSize: 20.0,
+                    fontStyle: FontStyle.italic),
+              ),
             ),
+            onTap: (){
+              Navigator.of(context).pushNamed('/AttendanceDefaulter3Days');
+            },
           ),
-          new MyCardSimple(
-            title: new Text(
-              "Defaulters with 5 days absent",
-              style: new TextStyle(
-                  color: Colors.blue,
-                  fontSize: 20.0,
-                  fontStyle: FontStyle.italic),
-            ),
 
-          ),
-          new MyCardSimple(
-            title: new Text(
-              "Tgt vs Ach on Planned Logins as on date",
-              style: new TextStyle(
-                  color: Colors.blue,
-                  fontSize: 20.0,
-                  fontStyle: FontStyle.italic),
+          new GestureDetector(
+            child: new MyCardSimple(
+              title: new Text(
+                "Defaulters with 5 days absent",
+                style: new TextStyle(
+                    color: Colors.blue,
+                    fontSize: 20.0,
+                    fontStyle: FontStyle.italic),
+              ),
+
             ),
+            onTap: (){
+              Navigator.of(context).pushNamed('/AttendanceDefaulter5Days');
+            },
+          ),
+          new GestureDetector(
+            child:  new MyCardSimple(
+              title: new Text(
+                "Tgt vs Ach on Planned Logins as on date",
+                style: new TextStyle(
+                    color: Colors.blue,
+                    fontSize: 20.0,
+                    fontStyle: FontStyle.italic),
+              ),
+            ),
+            onTap:  (){
+              Navigator.of(context).pushNamed('/AttendanceTgtVsAchPlannedLogins');
+            },
           ),
           new MyCardSimple(
             title: new Text(

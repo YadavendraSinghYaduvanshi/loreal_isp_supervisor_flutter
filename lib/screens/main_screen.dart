@@ -117,6 +117,27 @@ class _Main_ActivityState extends State<Main_Activity>
         ]),
       ));
 
+  static Text daily_entry = new Text("Daily Entry",
+      style: new TextStyle(
+          color: Colors.blue, fontSize: 20.0, fontStyle: FontStyle.normal));
+
+  static final dialy_parent = new GestureDetector(
+      onTap: () {
+        print("Daily entry clicked");
+        Navigator.of(context_global).pop();
+        Navigator.of(context_global).pushNamed('/StoreList');
+      },
+      child: new Container(
+        child: new Row(children: <Widget>[
+          new CircleAvatar(
+            backgroundImage: new AssetImage('assets/daily_entry.png'),
+            radius: 20.0,
+          ),
+          new SizedBox(width: 10.0),
+          daily_entry
+        ]),
+      ));
+
   static Text groups = new Text("Mark Attendance",
       style: new TextStyle(
           color: Colors.blue, fontSize: 20.0, fontStyle: FontStyle.normal));
@@ -145,7 +166,7 @@ class _Main_ActivityState extends State<Main_Activity>
   static final download = new GestureDetector(
       onTap: () {
         Navigator.of(context_global).pop();
-        print("Profile clicked");
+        print("Download");
         Navigator.of(context_global).pushNamed('/Download');
       },
       child:  new Container(
@@ -200,9 +221,14 @@ class _Main_ActivityState extends State<Main_Activity>
     padding: pad,
     child: sections_parent,
   );
+  static Padding padding6 = new Padding(
+    padding: pad,
+    child: dialy_parent,
+  );
 
   static var children = [
     profile,
+    padding6,
     padding2,
     padding3,
     padding4,
@@ -260,7 +286,7 @@ class _Main_ActivityState extends State<Main_Activity>
   //Loading counter value on start
    _loadCounter() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    visit_date = prefs.getString('Currentdate');
+    visit_date = prefs.getString('CURRENTDATE');
     notice_url = prefs.getString('Notice');
     userId = prefs.getString('Userid');
     //_fetchData(userId);
