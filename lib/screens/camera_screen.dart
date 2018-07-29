@@ -8,14 +8,15 @@ import 'package:video_player/video_player.dart';
 import 'package:simple_permissions/simple_permissions.dart';
 import 'package:loreal_isp_supervisor_flutter/gettersetter/all_gettersetter.dart';
 
-int store_cd;
 
 class CameraExampleHome extends StatefulWidget {
   List<CameraDescription> cameras;
+
   //int store_cd;
+  int store_cd;
 
   // In the constructor, require a Todo
-  CameraExampleHome({Key key, @required this.cameras, store_cd}) : super(key: key);
+  CameraExampleHome({Key key, @required this.cameras, this.store_cd}) : super(key: key);
 
   @override
   _CameraExampleHomeState createState() {
@@ -66,18 +67,24 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
   checkPermission() async {
     //check for Camera
     bool res = await SimplePermissions.checkPermission(Permission.Camera);
-    if (res) {
-      //check for WriteExternalStorage
-      res = await SimplePermissions
-          .checkPermission(Permission.WriteExternalStorage);
-
-      if (!res) {
-        requestPermission(Permission.WriteExternalStorage);
-      }
-    } else {
+    if (!res) {
       requestPermission(Permission.Camera);
     }
+
+    //check for WriteExternalStorage
+    res = await SimplePermissions
+        .checkPermission(Permission.WriteExternalStorage);
+
+    if (!res) {
+      requestPermission(Permission.WriteExternalStorage);
+    }
+
     print("permission is " + res.toString());
+
+    res = await SimplePermissions.checkPermission(Permission.Camera);
+    if (!res) {
+      Navigator.pop(context);
+    }
 
     res = await SimplePermissions
         .checkPermission(Permission.WriteExternalStorage);
@@ -268,7 +275,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
     return cam_change;
   }
 
-  String timestamp() => "StoreImg-"+ /*store_cd.toString() +"" +*/new DateTime.now().millisecondsSinceEpoch.toString();
+  String timestamp() => "StoreImg-"+ widget.store_cd.toString() +"" +new DateTime.now().millisecondsSinceEpoch.toString();
 
   void showInSnackBar(String message) {
     _scaffoldKey.currentState
@@ -309,7 +316,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
           videoController = null;
         });
         if (filePath != null) {
-          showInSnackBar('Picture saved to $filePath');
+          //showInSnackBar('Picture saved to $filePath');
           //_showCapturedImage();
           _openAddEntryDialog();
         }
@@ -321,7 +328,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
   void onVideoRecordButtonPressed() {
     startVideoRecording().then((String filePath) {
       if (mounted) setState(() {});
-      if (filePath != null) showInSnackBar('Saving video to $filePath');
+      //if (filePath != null) showInSnackBar('Saving video to $filePath');
     });
   }
 
@@ -395,6 +402,8 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
     }
     await vcontroller.play();
   }
+  //this image file name is returned
+  String img_file_name;
 
   Future<String> takePicture() async {
     if (!controller.value.isInitialized) {
@@ -402,9 +411,12 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
       return null;
     }
     final Directory extDir = await getExternalStorageDirectory();
-    final String dirPath = '${extDir.path}/Pictures/flutter_test';
+    final String dirPath = '${extDir.path}/Pictures/Loreal_ISP_SUP_IMG';
     await new Directory(dirPath).create(recursive: true);
-    final String filePath = '$dirPath/${timestamp()}.jpg';
+
+    img_file_name = '${timestamp()}.jpg';
+
+    final String filePath = '$dirPath/' + img_file_name;
 
     if (controller.value.isTakingPicture) {
       // A capture is already pending, do nothing.
@@ -481,7 +493,8 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
     ));
 
     if(img_path!=null){
-      Navigator.of(context).pop(img_path);
+      if(img_path!="Cancel")
+      Navigator.of(context).pop(img_file_name);
     }
   }
 }

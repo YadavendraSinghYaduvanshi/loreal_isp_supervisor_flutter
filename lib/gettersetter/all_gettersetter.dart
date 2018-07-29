@@ -162,23 +162,26 @@ class JCPGetterSetter {
 
 class CoverageGettersetter{
 
-  String KEY_STORE_CD = "STORE_CD", KEY_STORE_IMG_IN = "STORE_IMG_IN", KEY_STORE_IMG_OUT = "STORE_IMG_OUT";
+  String KEY_STORE_CD = "STORE_CD", KEY_STORE_IMG_IN = "STORE_IMG_IN",
+      KEY_STORE_IMG_OUT = "STORE_IMG_OUT", KEY_VISIT_DATE = "VISIT_DATE";
   int _STORE_CD;
-  String _STORE_IMG_IN, _STORE_IMG_OUT;
+  String _STORE_IMG_IN, _STORE_IMG_OUT, _VISIT_DATE;
 
-  CoverageGettersetter(this._STORE_CD, this._STORE_IMG_IN, this._STORE_IMG_OUT);
+  CoverageGettersetter(this._STORE_CD, this._STORE_IMG_IN, this._STORE_IMG_OUT, this._VISIT_DATE);
 
   int get STORE_CD => _STORE_CD;
 
   get STORE_IMG_OUT => _STORE_IMG_OUT;
 
   String get STORE_IMG_IN => _STORE_IMG_IN;
+  String get VISIT_DATE => _VISIT_DATE;
 
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{
       KEY_STORE_CD: _STORE_CD,
       KEY_STORE_IMG_IN: _STORE_IMG_IN,
-      KEY_STORE_IMG_OUT: _STORE_IMG_OUT
+      KEY_STORE_IMG_OUT: _STORE_IMG_OUT,
+      KEY_VISIT_DATE: _VISIT_DATE
     };
   /*  if (id != null) {
       map[columnId] = id;

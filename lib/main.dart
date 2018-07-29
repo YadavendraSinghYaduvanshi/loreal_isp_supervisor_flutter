@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'My CPM',
+      title: 'Loreal ISP SUP',
       routes: <String, WidgetBuilder>{
         '/MainPage': (BuildContext context)=>new Main_Activity(),
         '/Download': (BuildContext context)=>new DownloadData(),
