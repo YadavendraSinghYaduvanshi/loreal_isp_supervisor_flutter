@@ -25,7 +25,7 @@ class DBHelper {
   void _onCreate(Database db, int version) async {
     // When creating the db, create the table
    await db.execute(
-        "CREATE TABLE COVERAGE_DATA(id INTEGER PRIMARY KEY, STORE_CD int, STORE_IMG_IN TEXT, STORE_IMG_OUT TEXT)");
+        "CREATE TABLE COVERAGE_DATA(id INTEGER PRIMARY KEY, STORE_CD int, VISIT_DATE TEXT, STORE_IMG_IN TEXT, STORE_IMG_OUT TEXT)");
     print("Created tables");
   }
 
@@ -54,7 +54,8 @@ class DBHelper {
 
   Future insertCoverageIn(JCPGetterSetter store_data, String img_path) async{
     var dbClient = await db;
-    CoverageGettersetter coverage = new CoverageGettersetter(store_data.STORE_CD, img_path, "");
+    CoverageGettersetter coverage = new CoverageGettersetter(store_data.STORE_CD,
+        img_path, "",store_data.VISIT_DATE );
 
     var primary_key = await dbClient.insert("COVERAGE_DATA", coverage.toMap());
     // Update some record
@@ -63,6 +64,17 @@ class DBHelper {
         ["I", store_data.STORE_CD]);
     return primary_key;
   }
+
+  Future deleteCoverageSpecific(int store_cd) async{
+    var dbClient = await db;
+    var count = await dbClient
+        .rawDelete("DELETE FROM COVERAGE_DATA WHERE STORE_CD = '"+ store_cd.toString() +"'");
+
+    int count1 = await dbClient.rawUpdate(
+        'UPDATE JOURNEY_PLAN_SUP SET UPLOAD_STATUS = ? WHERE STORE_CD = ?',
+        ["U", store_cd]);
+  }
+
 
 
 /*  void saveEmployee(JCPGetterSetter employee) async {
@@ -90,15 +102,37 @@ class DBHelper {
   }*/
 
   Future<List<JCPGetterSetter>> getJCPList(String visit_date) async {
-    var dbClient = await db;
-    List<Map> list = await dbClient.rawQuery("SELECT * FROM JOURNEY_PLAN_SUP where VISIT_DATE= '" + visit_date +"'");
     List<JCPGetterSetter> storelist = new List();
-    for (int i = 0; i < list.length; i++) {
-      storelist.add(new JCPGetterSetter(list[i]["STORE_CD"], list[i]["EMP_CD"], list[i]["VISIT_DATE"], list[i]["KEYACCOUNT"], list[i]["STORENAME"], list[i]["CITY"], list[i]["STORETYPE"],
-          list[i]["UPLOAD_STATUS"],list[i]["CHECKOUT_STATUS"],list[i]["LATTITUDE"],list[i]["LONGITUDE"],list[i]["GEO_TAG"],list[i]["CHANNEL_CD"],list[i]["CHANNEL"]));
+    try{
+      var dbClient = await db;
+      List<Map> list = await dbClient.rawQuery("SELECT * FROM JOURNEY_PLAN_SUP where VISIT_DATE= '" + visit_date +"'");
+
+      for (int i = 0; i < list.length; i++) {
+        storelist.add(new JCPGetterSetter(list[i]["STORE_CD"], list[i]["EMP_CD"], list[i]["VISIT_DATE"], list[i]["KEYACCOUNT"], list[i]["STORENAME"], list[i]["CITY"], list[i]["STORETYPE"],
+            list[i]["UPLOAD_STATUS"],list[i]["CHECKOUT_STATUS"],list[i]["LATTITUDE"],list[i]["LONGITUDE"],list[i]["GEO_TAG"],list[i]["CHANNEL_CD"],list[i]["CHANNEL"]));
+      }
+      print(storelist.length);
+      return storelist;
     }
-    print(storelist.length);
-    return storelist;
+    on Exception{
+      return storelist;
+    }
+
+
+  }
+
+  Future<CoverageGettersetter> getCoverage(String visit_date, int store_cd) async {
+    var dbClient = await db;
+    List<Map> list = await dbClient.rawQuery("SELECT * FROM COVERAGE_DATA where VISIT_DATE= '" + visit_date
+        +"' AND STORE_CD ='" + store_cd.toString() +"'");
+    CoverageGettersetter coverage;
+
+    if(list.length>0){
+      coverage = new CoverageGettersetter(
+        list[0]["STORE_CD"], list[0]["STORE_IMG_IN"], list[0]["STORE_IMG_OUT"], list[0]["VISIT_DATE"]);
+    }
+
+    return coverage;
   }
 }
 

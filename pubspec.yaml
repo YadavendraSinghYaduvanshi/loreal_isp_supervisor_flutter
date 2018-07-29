@@ -18,6 +18,8 @@ dependencies:
   path_provider: 0.3.0
   simple_permissions: ^0.1.5
 
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -60,6 +62,7 @@ flutter:
         - assets/download.png
         - assets/daily_entry.png
         - assets/camera_icon.png
+        - assets/tick_icon.png
 
   # assets:
   #  - images/a_dot_burr.jpeg
