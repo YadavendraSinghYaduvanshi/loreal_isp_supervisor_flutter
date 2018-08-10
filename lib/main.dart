@@ -13,6 +13,19 @@ import 'screens/store_list.dart';
 import 'screens/attendance_screens/attendance_defaulters_with_5days_absent.dart';
 import 'screens/attendance_screens/attendance_defaulters_with_3days_absent.dart';
 import 'screens/attendance_screens/attendance_tgt_vs_ach_planned_logins.dart';
+import 'screens/promoter_performance/promoter_performance.dart';
+import 'screens/promoter_performance/oqad_over_all.dart';
+import 'screens/promoter_performance/oqad_selling_skills.dart';
+import 'screens/promoter_performance/oqad_product_knowledge.dart';
+import 'screens/self_visitor_login/self_visitor_login.dart';
+import 'screens/manning_leaves_absenteeism/manning_leave_absenteeism.dart';
+import 'screens/manning_leaves_absenteeism/daywise_time_spent.dart';
+import 'screens/manning_leaves_absenteeism/average_time_spent.dart';
+import 'screens/manning_leaves_absenteeism/storewise_man_days.dart';
+import 'screens/manning_leaves_absenteeism/promoter_wise_present_days.dart';
+import 'screens/self_visitor_login/visitor_login.dart';
+import 'screens/self_visitor_login/no_of_days_worked.dart';
+import 'screens/self_visitor_login/visitor_time_spent.dart';
 
 void main() => runApp(new MyApp());
 
@@ -35,6 +48,20 @@ class MyApp extends StatelessWidget {
         '/AttendanceDefaulter3Days': (BuildContext context)=>new AttendanceDefaulter3Days(),
         '/AttendanceTgtVsAchPlannedLogins': (BuildContext context)=>new AttendanceTgtVsAchPlannedLogins(),
         '/StoreList': (BuildContext context)=>new StoreList(),
+        '/PerformanceList': (BuildContext context)=>new PerformanceList(),
+        '/OQADOverAll': (BuildContext context)=>new OQADOverAll(),
+        '/OQADSellingSkills': (BuildContext context)=>new OQADSellingSkills(),
+        '/OQADProductKnowledge': (BuildContext context)=>new OQADProductKnowledge(),
+        '/SelfVisitorLogin': (BuildContext context)=>new SelfVisitorLogin(),
+        '/ManningLeaveList': (BuildContext context)=>new ManningLeaveList(),
+        '/DaywiseTimeSpent': (BuildContext context)=>new DaywiseTimeSpent(),
+        '/AverageTimeSpent': (BuildContext context)=>new AverageTimeSpent(),
+        '/StorewiseManDays': (BuildContext context)=>new StorewiseManDays(),
+        '/PromoterWisePresentDays': (BuildContext context)=>new PromoterWisePresentDays(),
+        '/VisitorLogin': (BuildContext context)=>new VisitorLogin(),
+        '/NoDaysWorked': (BuildContext context)=>new NoDaysWorked(),
+        '/VisitorTimeSpent': (BuildContext context)=>new VisitorTimeSpent(),
+        //'/NonWorking': (BuildContext context)=>new NonWorking(),
         //'/CameraApp': (BuildContext context)=>new CameraExampleHome(),
       },
       home: new SplashScreen(),

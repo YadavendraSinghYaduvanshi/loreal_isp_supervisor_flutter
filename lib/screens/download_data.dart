@@ -11,8 +11,9 @@ class DownloadData extends StatefulWidget {
   _DownloadDataState createState() => _DownloadDataState();
 }
 
-class _DownloadDataState extends State<DownloadData> {
+class _DownloadDataState extends State<DownloadData>{
   var visit_date, user_id;
+  String error_msg = "Network Error Please Try Again.";
 
   @override
   void initState() {
@@ -23,11 +24,13 @@ class _DownloadDataState extends State<DownloadData> {
   }
 
   //List<String> items = ["Table_Structure", "JOURNEY_PLAN_SUP", "NON_WORKING_REASON"];
-  List<String> items = ["Table_Structure", "JOURNEY_PLAN_SUP"];
+  List<String> items = ["Table_Structure", "JOURNEY_PLAN_SUP","NON_WORKING_REASON"];
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Container(
+      color: new Color(0xffEEEEEE),
+    );
   }
 
   _fetchData(var index) async {
@@ -48,54 +51,98 @@ class _DownloadDataState extends State<DownloadData> {
 
     };
 
-    String lData = json.encode(lMap);
-    Map<String, String> lHeaders = {};
-    lHeaders = {
-      "Content-type": "application/json",
-      "Accept": "application/json"
-    };
-    http.post(url, body: lData, headers: lHeaders).then((response) {
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
-      var test = JSON.decode(response.body);
+    try {
+      String lData = json.encode(lMap);
+      Map<String, String> lHeaders = {};
+      lHeaders = {
+        "Content-type": "application/json",
+        "Accept": "application/json"
+      };
+     await http.post(url, body: lData, headers: lHeaders).then((response) {
+        print("Response status: ${response.statusCode}");
+        print("Response body: ${response.body}");
+        var test = JSON.decode(response.body);
 
-      var test1 = json.decode(test);
+        //var test1 = json.decode(test);
 
-      switch(items[index]){
+        switch(items[index]){
 
-        case "Table_Structure":
+          case "Table_Structure":
 
-          List<Table_Structure> table_list=  parseTableStructure(response.body);
+            List<Table_Structure> table_list=  parseTableStructure(response.body);
 
-          //var data = test1['Table_Structure'];
-          for(int i=0; i<table_list.length; i++){
-            _create_table(table_list[i].SqlText);
-          }
+            //var data = test1['Table_Structure'];
+            for(int i=0; i<table_list.length; i++){
+              _create_table(table_list[i].SqlText);
+            }
 
-          break;
+            break;
 
-        case "JOURNEY_PLAN_SUP":
+          case "JOURNEY_PLAN_SUP":
 
-          _insertData(response.body, "JOURNEY_PLAN_SUP");
+            if(test==""){
+              error_msg = "No journey plan defined for today";
+              var test1 = json.decode(test);
+            }
 
-          //List<JOURNEY_PLAN_SUP> table_list =  parseSUPJCP(response.body);
+            //
+            _insertData(response.body, "JOURNEY_PLAN_SUP");
 
-          break;
+            //List<JOURNEY_PLAN_SUP> table_list =  parseSUPJCP(response.body);
 
-        case "NON_WORKING_REASON":
-          _insertData(response.body, "NON_WORKING_REASON");
-          break;
-      }
+            break;
 
-      if(index+1 < items.length){
-        _fetchData(++index);
-      }
-      else{
-        Navigator.pop(context, DialogDemoAction.cancel);
+          case "NON_WORKING_REASON":
+            _insertData(response.body, "NON_WORKING_REASON");
+            break;
+        }
+
+        if(index+1 < items.length){
+          _fetchData(++index);
+        }
+        else{
+          Navigator.pop(context, DialogDemoAction.cancel);
+          Navigator.of(context).pop();
+        }
+
+      });
+    }catch(Exception){
+
+      Navigator.pop(context, DialogDemoAction.cancel);
+      var dialog = await _AlertDialog();
+      if(dialog!=null){
         Navigator.of(context).pop();
       }
+    }
+  }
 
-    });
+  Future<String> _AlertDialog() async {
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return new AlertDialog(
+          title: new Text('Alert'),
+          content: new SingleChildScrollView(
+            child: new ListBody(
+              children: <Widget>[
+                new Text(error_msg),
+                //new Text('or Password'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text('Ok'),
+              color: new Color(0xffEEEEEE),
+              onPressed: () {
+                Navigator.of(context).pop("ok");
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   //Loading counter value on start
@@ -163,10 +210,14 @@ enum DialogDemoAction {
 
 List<Table_Structure> parseTableStructure(String responseBody) {
   var test = JSON.decode(responseBody);
+  List<Table_Structure> statusList = new List();
 
+  if(test==""){
+    return statusList;
+  }
   var test1 = json.decode(test);
   var list = test1['Table_Structure'] as List;
-  List<Table_Structure> statusList =
+   statusList =
   list.map((i) => Table_Structure.fromJson(i)).toList();
 
   return statusList;

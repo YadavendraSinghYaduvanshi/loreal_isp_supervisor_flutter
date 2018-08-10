@@ -87,7 +87,8 @@ class _AttendanceTgtVsAchPlannedLoginsState
                       if (snapshot.hasError) print(snapshot.error);
                       //_loadCounter();
                       return snapshot.hasData
-                          ? StatusList(status: snapshot.data)
+                          ? (snapshot.data.length>0? StatusList(status: snapshot.data): new Center(child: new Card(child: new Container(margin: EdgeInsets.all(5.0),
+                        child: new Text("No Data found", style: TextStyle(fontSize: 20.0),),),),))
                           : Center(child: CircularProgressIndicator());
                     },
                   ))
@@ -135,10 +136,14 @@ class _AttendanceTgtVsAchPlannedLoginsState
 
 List<TARGET_VS_ACH_PLANNED_LOGINS> parsePhotos(String responseBody) {
   var test = JSON.decode(responseBody);
+  List<TARGET_VS_ACH_PLANNED_LOGINS> statusList = new List();
+  if(test==""){
+    return statusList;
+  }
 
   var test1 = json.decode(test);
   var list = test1['TARGET_VS_ACH_PLANNED_LOGINS'] as List;
-  List<TARGET_VS_ACH_PLANNED_LOGINS> statusList =
+  statusList =
   list.map((i) => TARGET_VS_ACH_PLANNED_LOGINS.fromJson(i)).toList();
 
   return statusList;

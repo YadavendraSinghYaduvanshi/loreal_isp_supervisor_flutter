@@ -5,6 +5,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:loreal_isp_supervisor_flutter/database/database.dart';
 
+import 'package:async/async.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+
 class Main_Activity extends StatefulWidget {
   @override
   _Main_ActivityState createState() => _Main_ActivityState();
@@ -147,6 +151,7 @@ class _Main_ActivityState extends State<Main_Activity>
         print("Mark Attendance");
         Navigator.of(context_global).pop();
         Navigator.of(context_global).pushNamed('/MarkAttendance');
+
       },
       child: new Container(
         child: new Row(children: <Widget>[
@@ -230,7 +235,7 @@ class _Main_ActivityState extends State<Main_Activity>
     profile,
     padding6,
     padding2,
-    padding3,
+    //padding3,
     padding4,
     padding5,
   ];

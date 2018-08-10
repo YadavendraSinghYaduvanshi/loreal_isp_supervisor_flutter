@@ -54,36 +54,49 @@ class _report_listState extends State<ReportList> {
               ),
             ),
             onTap: (){
-              opencamera();
+              print("attendance");
+              Navigator.of(context).pushNamed('/PerformanceList');
             },
           ),
+          new GestureDetector(
+            onTap:(){
+              print("attendance");
+              Navigator.of(context).pushNamed('/ManningLeaveList');
+            },
+            child:  new MyCard(
+              title: new Text(
+                "Manning / Leaves / Absenteeism",
+                style: new TextStyle(
+                    color: Colors.blue,
+                    fontSize: 20.0,
+                    fontStyle: FontStyle.italic),
+              ),
+              image: new CircleAvatar(
+                backgroundImage: new AssetImage('assets/absent.png'),
+                radius: 30.0,
+              ),
+            ),
+          ),
+         new GestureDetector(
+           child:  new MyCard(
+             title: new Text(
+               "Self-Visitor Login",
+               style: new TextStyle(
+                   color: Colors.blue,
+                   fontSize: 20.0,
+                   fontStyle: FontStyle.italic),
+             ),
+             image: new CircleAvatar(
+               backgroundImage: new AssetImage('assets/visitor_login.png'),
+               radius: 30.0,
+             ),
+           ),
+           onTap:(){
+             print("attendance");
+             Navigator.of(context).pushNamed('/SelfVisitorLogin');
+           },
+         ),
 
-          new MyCard(
-            title: new Text(
-              "Manning / Leaves / Absenteeism",
-              style: new TextStyle(
-                  color: Colors.blue,
-                  fontSize: 20.0,
-                  fontStyle: FontStyle.italic),
-            ),
-            image: new CircleAvatar(
-              backgroundImage: new AssetImage('assets/absent.png'),
-              radius: 30.0,
-            ),
-          ),
-          new MyCard(
-            title: new Text(
-              "Self-Visitor Login",
-              style: new TextStyle(
-                  color: Colors.blue,
-                  fontSize: 20.0,
-                  fontStyle: FontStyle.italic),
-            ),
-            image: new CircleAvatar(
-              backgroundImage: new AssetImage('assets/visitor_login.png'),
-              radius: 30.0,
-            ),
-          ),
         ],
       ),
     );
@@ -98,12 +111,12 @@ class _report_listState extends State<ReportList> {
     } on CameraException catch (e) {
       logError(e.code, e.description);
     }
-    Navigator.push(
+    /*Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => CameraExampleHome(cameras: cameras),
       ),
-    );
+    );*/
   }
 
   void logError(String code, String message) =>

@@ -17,7 +17,9 @@ dependencies:
   video_player: "0.5.2"
   path_provider: 0.3.0
   simple_permissions: ^0.1.5
-
+  cloud_firestore: ^0.7.4
+  firebase_storage: ^1.0.1
+  dio: ^1.0.0
 
 
 dev_dependencies:
@@ -62,6 +64,7 @@ flutter:
         - assets/download.png
         - assets/daily_entry.png
         - assets/camera_icon.png
+        - assets/camera_icon_tick.png
         - assets/tick_icon.png
 
   # assets:

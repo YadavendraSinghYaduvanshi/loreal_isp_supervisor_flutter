@@ -51,6 +51,25 @@ class JOURNEY_PLAN_SUP {
   }
 }
 
+class NonWorkingReasonGetterSetter{
+
+  int _REASON_CD;
+  String _REASON;
+  int _ENTRY_ALLOW, _IMAGE_ALLOW;
+
+  int get REASON_CD => _REASON_CD;
+
+  NonWorkingReasonGetterSetter(this._REASON_CD, this._REASON, this._ENTRY_ALLOW,
+      this._IMAGE_ALLOW);
+
+  String get REASON => _REASON;
+
+  int get ENTRY_ALLOW => _ENTRY_ALLOW;
+
+  get IMAGE_ALLOW => _IMAGE_ALLOW;
+
+}
+
 class JCPGetterSetter {
   int _STORE_CD;
   int _EMP_CD;

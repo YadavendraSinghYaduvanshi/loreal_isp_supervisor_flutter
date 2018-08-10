@@ -65,6 +65,7 @@ class DBHelper {
     return primary_key;
   }
 
+
   Future deleteCoverageSpecific(int store_cd) async{
     var dbClient = await db;
     var count = await dbClient
@@ -118,6 +119,30 @@ class DBHelper {
       return storelist;
     }
 
+  }
+
+  Future<List<NonWorkingReasonGetterSetter>> getNonWorkingReasonList(bool upload_flag) async {
+    List<NonWorkingReasonGetterSetter> reasonlist = new List();
+    try{
+      var dbClient = await db;
+      String query;
+      if(upload_flag){
+        query = "SELECT * FROM NON_WORKING_REASON WHERE ENTRY_ALLOW ='1'";
+      }
+      else{
+        query = "SELECT * FROM NON_WORKING_REASON ";
+      }
+      List<Map> list = await dbClient.rawQuery("SELECT * FROM NON_WORKING_REASON ");
+
+      for (int i = 0; i < list.length; i++) {
+        reasonlist.add(new NonWorkingReasonGetterSetter(list[i]["REASON_CD"], list[i]["REASON"], list[i]["ENTRY_ALLOW"], list[i]["IMAGE_ALLOW"],));
+      }
+      print(reasonlist.length);
+      return reasonlist;
+    }
+    on Exception{
+      return reasonlist;
+    }
 
   }
 
