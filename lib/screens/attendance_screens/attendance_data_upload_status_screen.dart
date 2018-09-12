@@ -133,7 +133,7 @@ class _AttendanceDataUploadstatusState
 }
 
 List<ATTENDANCE_DATAUPLOAD_STATUS> parsePhotos(String responseBody) {
-  var test = JSON.decode(responseBody);
+  var test = json.decode(responseBody);
 
   var test1 = json.decode(test);
   var list = test1['ATTENDANCE_DATAUPLOAD_STATUS'] as List;

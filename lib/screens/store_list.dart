@@ -10,6 +10,11 @@ _StoreListState _myStoeListState = new _StoreListState();
 
 class StoreList extends StatefulWidget {
 
+  int deviation_flag;
+
+  // In the constructor, require a Todo
+  StoreList({Key key, @required this.deviation_flag,}) : super(key: key);
+
   @override
   _StoreListState createState() => new _StoreListState();
 }
@@ -28,12 +33,13 @@ class _StoreListState extends State<StoreList> {
       body: Container(
           color: new Color(0xffEEEEEE),
           child: FutureBuilder<List<JCPGetterSetter>>(
-            future: fetchData(),
+            future: fetchData(widget.deviation_flag),
             builder: (context, snapshot) {
               if (snapshot.hasError) print(snapshot.error);
               //_loadCounter();
               return snapshot.hasData
                   ? (snapshot.data.length>0?storeListList(
+                deviation_flag: widget.deviation_flag,
                 storeList: snapshot.data,scaffoldKey: _scaffoldKey,): new Center(child: new Card(child: new Text("No Data found - Please download data", style: TextStyle(fontSize: 16.0),),),))
                   : Center(child: CircularProgressIndicator());
             },
@@ -45,7 +51,7 @@ class _StoreListState extends State<StoreList> {
 
   String visit_date;
 
-  Future<List<JCPGetterSetter>> fetchData() async {
+  Future<List<JCPGetterSetter>> fetchData(int deviation_flag) async {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     //visit_date = prefs.getString('CURRENTDATE');
@@ -53,7 +59,7 @@ class _StoreListState extends State<StoreList> {
 
     //var t1 = await _openDb();
     var dbHelper = DBHelper();
-    List<JCPGetterSetter> store_list = await dbHelper.getJCPList(visit_date);
+    List<JCPGetterSetter> store_list = await dbHelper.getJCPList(visit_date, deviation_flag);
     return store_list;
   }
 
@@ -71,8 +77,9 @@ class _StoreListState extends State<StoreList> {
 class storeListList extends StatelessWidget {
   final List<JCPGetterSetter> storeList;
   final GlobalKey<ScaffoldState> scaffoldKey;
+  final int deviation_flag;
 
-  storeListList({Key key, this.storeList, this.scaffoldKey}) : super(key: key);
+  storeListList({Key key, this.deviation_flag ,this.storeList, this.scaffoldKey}) : super(key: key);
 
   void showInSnackBar(String message) {
     scaffoldKey.currentState
@@ -82,12 +89,12 @@ class storeListList extends StatelessWidget {
 
   BuildContext context_global;
 
-  void onSubmit(String result, int index) {
+  void onSubmit(String result, int index, int deviation_flag) {
     print(result);
     if(result == "entry"){
       showInSnackBar("PLease select an option");
     }else if(result == "Yes"){
-      openStoreImage(context_global, storeList[index]);
+      openStoreImage(context_global, storeList[index], deviation_flag);
     }else{
       Navigator.push(
         context_global,
@@ -120,7 +127,12 @@ class storeListList extends StatelessWidget {
                       showInSnackBar('Please checkout from current store');
                     }
                     else{
-                      showDialog(context: context, child: new MyForm(onSubmit: onSubmit,index: index,));
+                      if(deviation_flag==0){
+                        showDialog(context: context, child: new MyForm(onSubmit: onSubmit,index: index, deviation_flag:deviation_flag));
+                      }
+                      else{
+                        openStoreImage(context_global, storeList[index], deviation_flag);
+                      }
                       //openStoreImage(context, storeList[index]);
                     }
                   }
@@ -170,11 +182,11 @@ class storeListList extends StatelessWidget {
     );
   }
 
-  Future openStoreImage(BuildContext context, JCPGetterSetter jcp) async{
+  Future openStoreImage(BuildContext context, JCPGetterSetter jcp, int deviation_flag) async{
     var isfilled = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => StoreImage(store_data: jcp),
+        builder: (context) => StoreImage(store_data: jcp, deviation_flag: deviation_flag,),
       ),
     );
 
@@ -206,13 +218,14 @@ class storeListList extends StatelessWidget {
 
 }
 
-typedef void MyFormCallback(String result, int index);
+typedef void MyFormCallback(String result, int index, int deviation_flag);
 
 class MyForm extends StatefulWidget {
   final MyFormCallback onSubmit;
   int index;
+  int deviation_flag;
 
-  MyForm({this.onSubmit, this.index});
+  MyForm({this.onSubmit, this.index, this.deviation_flag});
 
   @override
   _MyFormState createState() => new _MyFormState();
@@ -244,7 +257,7 @@ class _MyFormState extends State<MyForm> {
             color: Colors.blue,
             onPressed: () {
               Navigator.pop(context);
-              widget.onSubmit(value, widget.index);
+              widget.onSubmit(value, widget.index, widget.deviation_flag);
             },
             child: new Text("Submit", style: TextStyle(fontSize: 20.0, color: Colors.white),),
           ),

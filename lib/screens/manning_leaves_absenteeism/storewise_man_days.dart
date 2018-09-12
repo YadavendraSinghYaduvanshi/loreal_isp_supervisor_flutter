@@ -82,7 +82,7 @@ class _DaywiseTimeSpentState extends State<DaywiseTimeSpent> {
 }
 
 List<DAYWISE_TIME_SPENT> parsePhotos(String responseBody) {
-  var test = JSON.decode(responseBody);
+  var test = json.decode(responseBody);
   List<DAYWISE_TIME_SPENT> statusList = new List();
 
   if(test==""){

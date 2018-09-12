@@ -132,7 +132,7 @@ class _VisitorTimeSpentState extends State<VisitorTimeSpent> {
 }
 
 List<VISITOR_TIME_SPENT> parsePhotos(String responseBody) {
-  var test = JSON.decode(responseBody);
+  var test = json.decode(responseBody);
   List<VISITOR_TIME_SPENT> statusList = new List();
 
   if(test==""){

@@ -131,7 +131,7 @@ class _OQADProductKnowledgeState
 }
 
 List<OQAD_PRODUCT_KNOWLEDGE> parsePhotos(String responseBody) {
-  var test = JSON.decode(responseBody);
+  var test = json.decode(responseBody);
   List<OQAD_PRODUCT_KNOWLEDGE> statusList = new List();
 
   if(test==""){

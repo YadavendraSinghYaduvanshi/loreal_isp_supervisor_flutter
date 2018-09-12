@@ -288,6 +288,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
     if (controller != null) {
       await controller.dispose();
     }
+    //set image quality low
     controller = new CameraController(cameraDescription, ResolutionPreset.high);
 
     // If the controller is updated then update the UI.

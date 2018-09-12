@@ -136,7 +136,7 @@ class Login extends StatelessWidget {
           "Accept": "application/json"
         }
     );
-    data = JSON.decode(response.body);
+    data = json.decode(response.body);
     print(data[1]["title"]);
 
     return "Success!";*/ /*
@@ -192,7 +192,7 @@ class Login extends StatelessWidget {
     http.post(url, body: lData, headers: lHeaders).then((response) {
       print("Response status: ${response.statusCode}");
       print("Response body: ${response.body}");
-      var test = JSON.decode(response.body);
+      var test = json.decode(response.body);
       if(test.toString()=="Faliure"){
 
       }

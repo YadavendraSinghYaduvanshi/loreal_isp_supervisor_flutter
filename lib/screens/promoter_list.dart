@@ -81,7 +81,7 @@ class _PromoterListState extends State<PromoterList> {
      var response = await http.post(url, body: lData, headers: lHeaders);
      /*   print("Response status: ${response.statusCode}");
       print("Response body: ${response.body}");
-     *//* var test = JSON.decode(response.body);
+     *//* var test = json.decode(response.body);
 
       var test1 = json.decode(test);
       var list = test1['PROMOTER_LIST'] as List;
@@ -103,7 +103,7 @@ class _PromoterListState extends State<PromoterList> {
 // A function that will convert a response body into a List<Photo>
 List<Promoter> parsePhotos(String responseBody) {
 
-  var test = JSON.decode(responseBody);
+  var test = json.decode(responseBody);
   List<Promoter> promoterList = new List();
   if(test==""){
     return promoterList;

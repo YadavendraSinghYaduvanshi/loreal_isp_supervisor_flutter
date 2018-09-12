@@ -122,7 +122,7 @@ class _NoDaysWorkedState extends State<NoDaysWorked> {
 }
 
 List<NO_OF_DAYS_WORKED> parsePhotos(String responseBody) {
-  var test = JSON.decode(responseBody);
+  var test = json.decode(responseBody);
   List<NO_OF_DAYS_WORKED> statusList = new List();
 
   if(test==""){

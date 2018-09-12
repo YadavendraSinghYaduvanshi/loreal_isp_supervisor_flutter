@@ -10,16 +10,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:async/async.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
+import 'package:image/image.dart' as Im;
+import 'dart:math' as Math;
 
 
 class StoreImage extends StatefulWidget {
   JCPGetterSetter store_data;
+  int deviation_flag;
 
   // In the constructor, require a Todo
-  StoreImage({Key key, @required this.store_data}) : super(key: key);
+  StoreImage({Key key, @required this.store_data, this.deviation_flag})
+      : super(key: key);
 
   @override
   _StoreImageState createState() => _StoreImageState();
@@ -100,7 +102,9 @@ class _StoreImageState extends State<StoreImage> {
                       onPressed: () {
                         if (result_path != null) {
                           //insertStoreData(widget.store_data, result_path);
-                          _checkinData(widget.store_data, result_path);
+                          _checkinData(widget.store_data, result_path,
+                              widget.deviation_flag);
+                          //compressImage(null, filePath);
                           //Navigator.of(context).pop();
                         } else {
                           showInSnackBar('Please click image');
@@ -116,9 +120,19 @@ class _StoreImageState extends State<StoreImage> {
 
   //--------------------------
 
+  void compressImage(File imageFile, String file_path) async {
+
+    imageFile = new File(file_path);
+
+    Im.Image image = Im.decodeImage(imageFile.readAsBytesSync());
+    Im.Image smallerImage = Im.copyResize(image, 600); // choose the size here, it will maintain aspect ratio
+
+    var compressedImage = new File('$file_path')..writeAsBytesSync(Im.encodeJpg(smallerImage, quality: 90));
+  }
+
   Upload(File imageFile, String img_name) async {
-    var stream = new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
-    var length = await imageFile.length();
+/*    var stream = new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
+    var length = await imageFile.length();*/
 
     /* var uploadURL = "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/GetImages";
     var uri = Uri.parse(uploadURL);
@@ -134,7 +148,7 @@ class _StoreImageState extends State<StoreImage> {
         .addFormDataPart("Foldername", foldername)
         .build();*/
     //request.fields['Foldername'] = 'StoreImageSup';
-   /* request.fields['file'] = img_name;
+    /* request.fields['file'] = img_name;
     request.files.add(multipartFile);
     var response = await request.send();
     print(response.statusCode);
@@ -142,36 +156,44 @@ class _StoreImageState extends State<StoreImage> {
       print(value);
     });*/
 
- /*   var dio = new Dio();
+    /*   var dio = new Dio();
     dio.options.baseUrl = "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/GetImages";
 
     FormData formData = new FormData.from({
-      *//*"name": "wendux",
-      "age": 25,*//*
+      */ /*"name": "wendux",
+      "age": 25,*/ /*
       "file": new UploadFileInfo(imageFile, img_name),
       // In PHP the key must endwith "[]", ("files[]")
-     *//* "files": [
+     */ /* "files": [
         new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
         new UploadFileInfo(new File("./example/upload.txt"), "upload.txt")
-      ]*//*
+      ]*/ /*
     });
     Response response1 = await dio.post("/token", data: formData);
     print(response1.data);
 */
 
-    String uploadURL = "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/GetImages";
-    Dio dio = new Dio();
-    FormData formdata = new FormData(); // just like JS
-    formdata.add("file", new UploadFileInfo(imageFile, img_name));
-    formdata.add("Foldername", "StoreImageSup");
-    dio.post(uploadURL, data: formdata, options: Options(
-        method: 'POST',
-        responseType: ResponseType.PLAIN // or ResponseType.JSON
-    ))
-        .then((response) => print(response))
-        .catchError((error) => print(error));
 
-   /* var uri = Uri.parse("http://pub.dartlang.org/packages/create");
+      String uploadURL =
+          "http://lipromo.parinaam.in/LoralMerchandising.asmx/Uploadimages";
+      Dio dio = new Dio();
+      FormData formdata = new FormData(); // just like JS
+      formdata.add("file", new UploadFileInfo(imageFile, img_name));
+      formdata.add("Foldername", "StoreImageSup");
+      dio.post(uploadURL,
+          data: formdata,
+          options: Options(
+              method: 'POST',
+              responseType: ResponseType.PLAIN // or ResponseType.json
+          ))
+          .then((response) =>
+          showUploadSuccess('Result' + response.toString(), imageFile))
+          .catchError((error) =>  _AlertDialog());
+
+    //String uploadURL = "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/GetImages";
+
+
+    /* var uri = Uri.parse("http://pub.dartlang.org/packages/create");
     var request = new http.MultipartRequest("POST", url);
   */ /* request.fields['user'] = 'nweiz@google.com';
     request.files.add(new http.MultipartFile.f
@@ -183,6 +205,7 @@ class _StoreImageState extends State<StoreImage> {
       if (response.statusCode == 200) print("Uploaded!");
     });*/
   }
+
   //--------------------------
 
   CoverageGettersetter coverage;
@@ -206,7 +229,44 @@ class _StoreImageState extends State<StoreImage> {
     }
   }
 
-  _checkinData(JCPGetterSetter jcp, String path) async {
+  _createJCP(JCPGetterSetter jcp, String img_in) async {
+    try {
+      final url =
+          "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/UploadJorneyPlanSup";
+      Map lMap = {
+        "STORE_CD": jcp.STORE_CD,
+        "USER_ID": user_id,
+        "VISIT_DATE": visit_date,
+      };
+
+      String lData = json.encode(lMap);
+      Map<String, String> lHeaders = {};
+      lHeaders = {
+        "Content-type": "application/json",
+        "Accept": "application/json"
+      };
+      await http.post(url, body: lData, headers: lHeaders).then((response) {
+        print("Response status: ${response.statusCode}");
+        print("Response body: ${response.body}");
+        var test = json.decode(response.body);
+        if (test.toString().contains("Success")) {
+          var file = new File(filePath);
+
+          //await _uploadFile(file, img_in);
+          Upload(file, img_in);
+        } else {}
+        //var test1 = json.decode(test);
+      });
+    } catch (Exception) {
+
+      var dialog = await _AlertDialog();
+      if (dialog != null) {
+        // Navigator.of(context).pop();
+      }
+    }
+  }
+
+  _checkinData(JCPGetterSetter jcp, String path, int deviation_flag) async {
     showDialog<DialogDemoAction>(
       context: context,
       barrierDismissible: false,
@@ -278,18 +338,18 @@ class _StoreImageState extends State<StoreImage> {
       await http.post(url, body: lData, headers: lHeaders).then((response) {
         print("Response status: ${response.statusCode}");
         print("Response body: ${response.body}");
-        var test = JSON.decode(response.body);
+        var test = json.decode(response.body);
         if (test.toString().contains("Success")) {
           if (jcp.UPLOAD_STATUS == "N") {
-             insertStoreData(jcp, path);
+            insertStoreData(jcp, path, deviation_flag);
           } else {
-            deleteCoverageData(jcp, path);
+            deleteCoverageData(jcp, path, deviation_flag);
           }
         } else {}
         //var test1 = json.decode(test);
       });
     } catch (Exception) {
-      Navigator.pop(context, DialogDemoAction.cancel);
+      //Navigator.pop(context, DialogDemoAction.cancel);
       var dialog = await _AlertDialog();
       if (dialog != null) {
         // Navigator.of(context).pop();
@@ -298,6 +358,7 @@ class _StoreImageState extends State<StoreImage> {
   }
 
   Future<String> _AlertDialog() async {
+    Navigator.pop(context, DialogDemoAction.cancel);
     return showDialog<String>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -326,30 +387,43 @@ class _StoreImageState extends State<StoreImage> {
     );
   }
 
-  insertStoreData(JCPGetterSetter store_data, String img_in) async {
+  insertStoreData(
+      JCPGetterSetter store_data, String img_in, int deviation_flag) async {
     var dbHelper = DBHelper();
-    /*int primary_key = await dbHelper.insertCoverageIn(store_data, img_in);
+    int primary_key =
+        await dbHelper.insertCoverageIn(store_data, img_in, deviation_flag);
 
-    if (primary_key > 0) showInSnackBar('Data saved successfully');*/
+    //if (primary_key > 0) showInSnackBar('Data saved successfully');
 
     var file = new File(filePath);
 
-   //await _uploadFile(file, img_in);
+    //await compressImage(file, filePath);
+
+    //await _uploadFile(file, img_in);
     await Upload(file, img_in);
 
     //Navigator.of(context).pop("saved");
   }
 
-  deleteCoverageData(JCPGetterSetter store_data, String img_in) async {
- /*   var dbHelper = DBHelper();
-    int primary_key =
-        await dbHelper.deleteCoverageSpecific(store_data.STORE_CD);*/
+  deleteCoverageData(
+      JCPGetterSetter store_data, String img_in, int deviation_flag) async {
+    var dbHelper = DBHelper();
+    int primary_key = await dbHelper.deleteCoverageSpecific(
+        store_data.STORE_CD, deviation_flag);
 
     var file = new File(filePath);
 
-    //await _uploadFile(file, img_in);
+    //await compressImage(file, filePath);
 
-    await Upload(file, img_in);
+    if(deviation_flag==0){
+
+      await Upload(file, img_in);
+    }
+    else{
+      //in case of deviation store create JCP
+      _createJCP(store_data, img_in);
+    }
+
 
     //Navigator.of(context).pop("saved");
 
@@ -359,6 +433,14 @@ class _StoreImageState extends State<StoreImage> {
   void showInSnackBar(String message) {
     _scaffoldKey.currentState
         .showSnackBar(new SnackBar(content: new Text(message)));
+  }
+
+  void showUploadSuccess(String message, File file) {
+    Navigator.pop(context, DialogDemoAction.cancel);
+    if (message.contains("Success")) {
+      file.delete();
+    }
+    _showUploadResult();
   }
 
   List<CameraDescription> cameras;
@@ -389,7 +471,10 @@ class _StoreImageState extends State<StoreImage> {
       final Directory extDir = await getExternalStorageDirectory();
       final String dirPath = '${extDir.path}/Pictures/Loreal_ISP_SUP_IMG';
       filePath = '$dirPath/' + result_path;
+
       setState(() {});
+
+      await compressImage(null, filePath);
     }
   }
 
@@ -399,12 +484,12 @@ class _StoreImageState extends State<StoreImage> {
   String _fileContents;
   String kTestString = "Hello world!";
 
-  Future<Null> _uploadFile(File file, String file_name) async {
-    /* final Directory systemTempDir = Directory.systemTemp;
+ /* Future<Null> _uploadFile(File file, String file_name) async {
+    *//* final Directory systemTempDir = Directory.systemTemp;
     final File file = await new File('${systemTempDir.path}/foo.txt').create();
    file.writeAsString(kTestString);
     assert(await file.readAsString() == kTestString);
-    final String rand = "${new Random().nextInt(10000)}";*/
+    final String rand = "${new Random().nextInt(10000)}";*//*
     final StorageReference ref =
         FirebaseStorage.instance.ref().child(file_name);
     final StorageUploadTask uploadTask = ref.put(
@@ -421,6 +506,36 @@ class _StoreImageState extends State<StoreImage> {
     }
     Navigator.pop(context, DialogDemoAction.cancel);
     Navigator.of(context).pop("saved");
+  }*/
+
+  Future<Null> _showUploadResult() async {
+    showDialog<DialogDemoAction>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return new AlertDialog(
+          title: new Text('Alert'),
+          content: new SingleChildScrollView(
+            child: new ListBody(
+              children: <Widget>[
+                new Text('Data uploaded successfully'),
+                //new Text('or Password'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text('Ok'),
+              color: new Color(0xffEEEEEE),
+              onPressed: () {
+                Navigator.pop(context, DialogDemoAction.cancel);
+                Navigator.of(context).pop("saved");
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 

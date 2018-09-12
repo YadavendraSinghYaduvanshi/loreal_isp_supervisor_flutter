@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
         '/AttendanceDefaulter5Days': (BuildContext context)=>new AttendanceDefaulter5Days(),
         '/AttendanceDefaulter3Days': (BuildContext context)=>new AttendanceDefaulter3Days(),
         '/AttendanceTgtVsAchPlannedLogins': (BuildContext context)=>new AttendanceTgtVsAchPlannedLogins(),
-        '/StoreList': (BuildContext context)=>new StoreList(),
+        //'/StoreList': (BuildContext context)=>new StoreList(),
         '/PerformanceList': (BuildContext context)=>new PerformanceList(),
         '/OQADOverAll': (BuildContext context)=>new OQADOverAll(),
         '/OQADSellingSkills': (BuildContext context)=>new OQADSellingSkills(),

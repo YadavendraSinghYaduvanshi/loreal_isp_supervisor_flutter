@@ -10,6 +10,8 @@ import 'camera_screen.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:dio/dio.dart';
+import 'package:image/image.dart' as Im;
 
 class NonWorking extends StatefulWidget {
   JCPGetterSetter store_data;
@@ -225,7 +227,7 @@ class _NonWorkingState extends State<NonWorking> {
       await http.post(url, body: lData, headers: lHeaders).then((response) {
         print("Response status: ${response.statusCode}");
         print("Response body: ${response.body}");
-        var test = JSON.decode(response.body);
+        var test = json.decode(response.body);
         if (test.toString().contains("Success")) {
           InsertCoverageData(jcp, path);
         } else {}
@@ -272,11 +274,12 @@ class _NonWorkingState extends State<NonWorking> {
   InsertCoverageData(JCPGetterSetter store_data, String img_in) async {
     var dbHelper = DBHelper();
     int primary_key =
-    await dbHelper.deleteCoverageSpecific(store_data.STORE_CD);
+    await dbHelper.deleteCoverageSpecific(store_data.STORE_CD, 0);
 
     if(img_in!=null && img_in!=""){
       var file = new File(filePath);
-      await _uploadFile(file, img_in);
+      //await _uploadFile(file, img_in);
+      await Upload(file, img_in);
     }
     else{
       Navigator.pop(context, DialogDemoAction.cancel);
@@ -286,6 +289,62 @@ class _NonWorkingState extends State<NonWorking> {
     //Navigator.of(context).pop("saved");
 
     //if (primary_key > 0) showInSnackBar('Data saved successfully');
+  }
+
+  Upload(File imageFile, String img_name) async {
+
+    //String uploadURL = "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/GetImages";
+    String uploadURL = "http://lipromo.parinaam.in/LoralMerchandising.asmx/Uploadimages";
+    Dio dio = new Dio();
+    FormData formdata = new FormData(); // just like JS
+    formdata.add("file", new UploadFileInfo(imageFile, img_name));
+    formdata.add("Foldername", "StoreImageSup");
+    dio.post(uploadURL, data: formdata, options: Options(
+        method: 'POST',
+        responseType: ResponseType.PLAIN // or ResponseType.json
+    ))
+        .then((response) =>
+        showUploadSuccess('Result'+response.toString(), imageFile))
+        .catchError((error) => print(error));
+
+  }
+
+  void showUploadSuccess(String message, File file){
+    Navigator.pop(context, DialogDemoAction.cancel);
+    if (message.contains("Success")) {
+      file.delete();
+    }
+    _showUploadResult();
+  }
+
+  Future<Null> _showUploadResult() async {
+    showDialog<DialogDemoAction>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return new AlertDialog(
+          title: new Text('Alert'),
+          content: new SingleChildScrollView(
+            child: new ListBody(
+              children: <Widget>[
+                new Text('Data uploaded successfully'),
+                //new Text('or Password'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text('Ok'),
+              color: new Color(0xffEEEEEE),
+              onPressed: () {
+                Navigator.pop(context, DialogDemoAction.cancel);
+                Navigator.of(context).pop("saved");
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   List<CameraDescription> cameras;
@@ -317,7 +376,19 @@ class _NonWorkingState extends State<NonWorking> {
       final String dirPath = '${extDir.path}/Pictures/Loreal_ISP_SUP_IMG';
       filePath = '$dirPath/' + result_path;
       setState(() {});
+
+      await compressImage(null, filePath);
     }
+  }
+
+  void compressImage(File imageFile, String file_path) async {
+
+    imageFile = new File(file_path);
+
+    Im.Image image = Im.decodeImage(imageFile.readAsBytesSync());
+    Im.Image smallerImage = Im.copyResize(image, 600); // choose the size here, it will maintain aspect ratio
+
+    var compressedImage = new File('$file_path')..writeAsBytesSync(Im.encodeJpg(smallerImage, quality: 90));
   }
 
   String _fileContents;
@@ -371,7 +442,7 @@ class _NonWorkingState extends State<NonWorking> {
       coverage = await dbHelper.getCoverage(visit_date, store_data.STORE_CD);
     }
 
-    store_list = await dbHelper.getJCPList(visit_date);
+    store_list = await dbHelper.getJCPList(visit_date, 0);
 
     reasonList = await fetchData();
     if (reasonList.length > 0) {

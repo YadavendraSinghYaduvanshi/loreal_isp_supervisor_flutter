@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:loreal_isp_supervisor_flutter/database/database.dart';
+import 'store_list.dart';
 
 import 'package:async/async.dart';
 import 'dart:io';
@@ -52,7 +53,7 @@ class _Main_ActivityState extends State<Main_Activity>
     http.post(url, body: lData, headers: lHeaders).then((response) {
       print("Response status: ${response.statusCode}");
       print("Response body: ${response.body}");
-      var test = JSON.decode(response.body);
+      var test = json.decode(response.body);
 
       //var test1 = json.decode(test);
 
@@ -129,7 +130,13 @@ class _Main_ActivityState extends State<Main_Activity>
       onTap: () {
         print("Daily entry clicked");
         Navigator.of(context_global).pop();
-        Navigator.of(context_global).pushNamed('/StoreList');
+        //Navigator.of(context_global).pushNamed('/StoreList');
+        Navigator.push(
+          context_global,
+          MaterialPageRoute(
+            builder: (context) => StoreList(deviation_flag: 0),
+          ),
+        );
       },
       child: new Container(
         child: new Row(children: <Widget>[
@@ -142,7 +149,7 @@ class _Main_ActivityState extends State<Main_Activity>
         ]),
       ));
 
-  static Text groups = new Text("Mark Attendance",
+  static Text groups = new Text("Deviation",
       style: new TextStyle(
           color: Colors.blue, fontSize: 20.0, fontStyle: FontStyle.normal));
 
@@ -150,13 +157,18 @@ class _Main_ActivityState extends State<Main_Activity>
       onTap: () {
         print("Mark Attendance");
         Navigator.of(context_global).pop();
-        Navigator.of(context_global).pushNamed('/MarkAttendance');
-
+        //Navigator.of(context_global).pushNamed('/MarkAttendance');
+        Navigator.push(
+          context_global,
+          MaterialPageRoute(
+            builder: (context) => StoreList(deviation_flag: 1),
+          ),
+        );
       },
       child: new Container(
         child: new Row(children: <Widget>[
           new CircleAvatar(
-            backgroundImage: new AssetImage('assets/mark_attendance.png'),
+            backgroundImage: new AssetImage('assets/deviation.png'),
             radius: 20.0,
           ),
           new SizedBox(width: 10.0),
@@ -235,7 +247,7 @@ class _Main_ActivityState extends State<Main_Activity>
     profile,
     padding6,
     padding2,
-    //padding3,
+    padding3,
     padding4,
     padding5,
   ];

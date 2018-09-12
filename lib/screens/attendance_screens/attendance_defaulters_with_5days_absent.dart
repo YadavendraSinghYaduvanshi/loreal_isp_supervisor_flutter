@@ -111,7 +111,7 @@ class _AttendanceDefaulter5DaysState
 }
 
 List<ABSENT_DEFAULTER_FIVEDAYS> parsePhotos(String responseBody) {
-  var test = JSON.decode(responseBody);
+  var test = json.decode(responseBody);
   List<ABSENT_DEFAULTER_FIVEDAYS> statusList = new List();
   if(test==""){
     return statusList;

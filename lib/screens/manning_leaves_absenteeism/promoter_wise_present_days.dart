@@ -131,7 +131,7 @@ class _PromoterWisePresentDaysState extends State<PromoterWisePresentDays> {
 }
 
 List<PROMOTER_WISE_PRESENT_DAYS> parsePhotos(String responseBody) {
-  var test = JSON.decode(responseBody);
+  var test = json.decode(responseBody);
   List<PROMOTER_WISE_PRESENT_DAYS> statusList = new List();
 
   if(test==""){

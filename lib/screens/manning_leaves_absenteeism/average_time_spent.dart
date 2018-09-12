@@ -115,7 +115,7 @@ class _AverageTimeSpentState extends State<AverageTimeSpent> {
 }
 
 List<AVERAGE_TIME_SPENT> parsePhotos(String responseBody) {
-  var test = JSON.decode(responseBody);
+  var test = json.decode(responseBody);
   List<AVERAGE_TIME_SPENT> statusList = new List();
 
   if(test==""){

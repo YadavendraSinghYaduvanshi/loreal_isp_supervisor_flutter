@@ -105,7 +105,7 @@ Future<Post> fetchPost() async {
   await http.get('https://jsonplaceholder.typicode.com/posts/1');
 
   if (response.statusCode == 200) {
-    // If the call to the server was successful, parse the JSON
+    // If the call to the server was successful, parse the json
     return Post.fromJson(json.decode(response.body));
   } else {
     // If that call was not successful, throw an error.

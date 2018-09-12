@@ -6,6 +6,10 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'main_screen.dart';
 import 'package:device_info/device_info.dart';
+import 'package:flutter/services.dart';
+import 'package:package_info/package_info.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 class LoginNew extends StatefulWidget {
   @override
@@ -13,6 +17,9 @@ class LoginNew extends StatefulWidget {
 }
 
 class _LoginNewState extends State<LoginNew> {
+
+  //static const platform = const MethodChannel('samples.flutter.io/battery');
+
   static final TextEditingController _uid = new TextEditingController();
   static final TextEditingController _psw = new TextEditingController();
 
@@ -34,10 +41,27 @@ class _LoginNewState extends State<LoginNew> {
 
   static BuildContext context_global;
 
+  PackageInfo _packageInfo = new PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+  );
+
+
   @override
   void initState() {
     super.initState();
+    _loadPrefData();
+    _initPackageInfo();
     fetchDeviceData();
+  }
+
+  Future<Null> _initPackageInfo() async {
+    final PackageInfo info = await PackageInfo.fromPlatform();
+    setState(() {
+      _packageInfo = info;
+    });
   }
 
   @override
@@ -170,6 +194,13 @@ class _LoginNewState extends State<LoginNew> {
                         new Container(
                           margin: new EdgeInsets.symmetric(vertical: 10.0),
                           child: new Center(
+                            child: new Text("Version - " + _packageInfo.version, style: new TextStyle(fontSize: 18.0),),
+                          ),
+                        ),
+                        new SizedBox(height: 15.0),
+                        new Container(
+                          margin: new EdgeInsets.symmetric(vertical: 10.0),
+                          child: new Center(
                             child: new Text("(c) All rights reserved 2018"),
                           ),
                         ),
@@ -183,6 +214,15 @@ class _LoginNewState extends State<LoginNew> {
     );
   }
 
+/*  Future<Null> _installApk() async {
+    try {
+      final int result = await platform.invokeMethod('getApkInstall');
+      //batteryLevel = 'Battery level at $result % .';
+    } on PlatformException catch (e) {
+      //batteryLevel = "Failed to get battery level: '${e.message}'.";
+    }
+  }*/
+
   void onSubmit() {
     print("Login with: " + _uid.text + " " + _psw.text);
   }
@@ -193,33 +233,47 @@ class _LoginNewState extends State<LoginNew> {
     if (form.validate()) {
       form.save();
 
-      // Email & password matched our validation rules
-      // and are saved to _email and _password fields.
-      showDialog<DialogDemoAction>(
-        context: context,
-        barrierDismissible: false,
-        child: new Dialog(
-            child: new Padding(
-          padding: EdgeInsets.all(25.0),
-          child: new Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              new CircularProgressIndicator(),
-              new SizedBox(width: 20.0),
-              new Text(
-                "Verifying...",
-                style: new TextStyle(fontSize: 18.0),
-              ),
-            ],
-          ),
-        )),
-      );
-      new Future.delayed(new Duration(seconds: 3), () {
-        /*Navigator.pop(context); //pop dialog
+      bool flag = true;
+      if(userId!=null && userId!=""){
+        if(userId!=_uid.text){
+          flag = false;
+        }
+      }
+
+      if(flag){
+        // Email & password matched our validation rules
+        // and are saved to _email and _password fields.
+        showDialog<DialogDemoAction>(
+          context: context,
+          barrierDismissible: false,
+          child: new Dialog(
+              child: new Padding(
+                padding: EdgeInsets.all(25.0),
+                child: new Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    new CircularProgressIndicator(),
+                    new SizedBox(width: 20.0),
+                    new Text(
+                      "Verifying...",
+                      style: new TextStyle(fontSize: 18.0),
+                    ),
+                  ],
+                ),
+              )),
+        );
+
+        new Future.delayed(new Duration(seconds: 3), () {
+          /*Navigator.pop(context); //pop dialog
         Navigator.of(context).pushNamed('/MainPage');*/
-        //getData();
-        _fetchData();
-      });
+          //getData();
+          _fetchData();
+        });
+      }
+      else{
+        _AlertDialog('User Id is incorrect.', 0, "");
+      }
+
     }
   }
 
@@ -227,6 +281,23 @@ class _LoginNewState extends State<LoginNew> {
     DeviceInfoPlugin deviceInfo = new DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
     print('Running on ${androidInfo.model}'); // e.g. "Moto G (4)"
+  }
+
+  var visit_date;
+  static var userId;
+  _loadPrefData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    visit_date = prefs.getString('CURRENTDATE');
+    userId = prefs.getString('Userid');
+  }
+
+  launchURL(String url) async {
+    //const url = 'https://flutter.io';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   _fetchData() async {
@@ -260,7 +331,7 @@ class _LoginNewState extends State<LoginNew> {
       await http.post(url, body: lData, headers: lHeaders).then((response) {
         print("Response status: ${response.statusCode}");
         print("Response body: ${response.body}");
-        var test = JSON.decode(response.body);
+        var test = json.decode(response.body);
         var test1 = json.decode(test);
 
         //var res = test1[0]['Result'];
@@ -274,13 +345,24 @@ class _LoginNewState extends State<LoginNew> {
         } else {
           var data = test1['Result'][0];
 
-          print(test1['Result'][0]['App_Path']);
+          print(test1['Result'][0]['APP_PATH']);
+          var apk_path = test1['Result'][0]['APP_PATH'];
+          var app_version = test1['Result'][0]['APP_VERSION'];
+
+          if(app_version == _packageInfo.buildNumber){
+            _incrementCounter(data);
+          }
+          else{
+            Navigator.pop(context, DialogDemoAction.cancel);
+            _AlertDialog('New Update Available. Please install apk after download.', 1, apk_path);
+          }
+
 /*        var app_version = data['App_Version'];
         var app_path = data['App_Path'];
         var current_date = data['CURRENTDATE'];
         var notice_board = data['Notice'];*/
-
-          _incrementCounter(data);
+           //_installApk();
+         // _incrementCounter(data);
           /*  Navigator.of(context_global).pop();
         Navigator.of(context_global).pushNamed('/MainPage');
 */
@@ -290,14 +372,14 @@ class _LoginNewState extends State<LoginNew> {
       });
     } catch (Exception) {
       Navigator.pop(context, DialogDemoAction.cancel);
-      var dialog = await _AlertDialog();
+      var dialog = await _AlertDialog('Network Error Please Try Again.', 0, "");
       if (dialog != null) {
        // Navigator.of(context).pop();
       }
     }
   }
 
-  Future<String> _AlertDialog() async {
+  Future<String> _AlertDialog(String msg, int flag, String url_apk) async {
     return showDialog<String>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -307,7 +389,7 @@ class _LoginNewState extends State<LoginNew> {
           content: new SingleChildScrollView(
             child: new ListBody(
               children: <Widget>[
-                new Text('Network Error Please Try Again.'),
+                new Text(msg),
                 //new Text('or Password'),
               ],
             ),
@@ -317,6 +399,9 @@ class _LoginNewState extends State<LoginNew> {
               child: new Text('Ok'),
               color: new Color(0xffEEEEEE),
               onPressed: () {
+                if(flag==1){
+                  launchURL(url_apk);
+                }
                 Navigator.of(context).pop("ok");
               },
             ),
@@ -370,6 +455,90 @@ class _LoginNewState extends State<LoginNew> {
       },
     );
   }
+
+  //device info
+
+  /*Future<Null> initPlatformState() async {
+    Map<String, dynamic> deviceData;
+
+    deviceData = _readAndroidBuildData(await deviceInfoPlugin.androidInfo);
+
+  *//*  try {
+      if (Platform.isAndroid) {
+        deviceData = _readAndroidBuildData(await deviceInfoPlugin.androidInfo);
+      } else if (Platform.isIOS) {
+        deviceData = _readIosDeviceInfo(await deviceInfoPlugin.iosInfo);
+      }
+    } on PlatformException {
+      deviceData = <String, dynamic>{
+        'Error:': 'Failed to get platform version.'
+      };
+    }*//*
+
+    if (!mounted) return;
+
+    setState(() {
+      _deviceData = deviceData;
+    });
+  }*/
+
+  Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
+    return <String, dynamic>{
+      'version.securityPatch': build.version.securityPatch,
+      'version.sdkInt': build.version.sdkInt,
+      'version.release': build.version.release,
+      'version.previewSdkInt': build.version.previewSdkInt,
+      'version.incremental': build.version.incremental,
+      'version.codename': build.version.codename,
+      'version.baseOS': build.version.baseOS,
+      'board': build.board,
+      'bootloader': build.bootloader,
+      'brand': build.brand,
+      'device': build.device,
+      'display': build.display,
+      'fingerprint': build.fingerprint,
+      'hardware': build.hardware,
+      'host': build.host,
+      'id': build.id,
+      'manufacturer': build.manufacturer,
+      'model': build.model,
+      'product': build.product,
+      'supported32BitAbis': build.supported32BitAbis,
+      'supported64BitAbis': build.supported64BitAbis,
+      'supportedAbis': build.supportedAbis,
+      'tags': build.tags,
+      'type': build.type,
+      'isPhysicalDevice': build.isPhysicalDevice,
+    };
+  }
+
+  Map<String, dynamic> _readIosDeviceInfo(IosDeviceInfo data) {
+    return <String, dynamic>{
+      'name': data.name,
+      'systemName': data.systemName,
+      'systemVersion': data.systemVersion,
+      'model': data.model,
+      'localizedModel': data.localizedModel,
+      'identifierForVendor': data.identifierForVendor,
+      'isPhysicalDevice': data.isPhysicalDevice,
+      'utsname.sysname:': data.utsname.sysname,
+      'utsname.nodename:': data.utsname.nodename,
+      'utsname.release:': data.utsname.release,
+      'utsname.version:': data.utsname.version,
+      'utsname.machine:': data.utsname.machine,
+    };
+  }
+
+/*  static final DeviceInfoPlugin deviceInfoPlugin = new DeviceInfoPlugin();
+  Map<String, dynamic> _deviceData = <String, dynamic>{};*/
+
+  /*void _openLinkInGoogleChrome() {
+    final AndroidIntent intent = new AndroidIntent(
+        action: 'action_view',
+        data: Uri.encodeFull('https://flutter.io'),
+        package: 'com.android.chrome');
+    intent.launch();
+  }*/
 }
 
 enum DialogDemoAction {

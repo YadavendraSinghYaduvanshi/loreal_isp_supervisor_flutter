@@ -17,7 +17,7 @@ class DBHelper {
 
   initDb() async {
     io.Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, "test.db");
+    String path = join(documentsDirectory.path, "test1.db");
     var theDb = await openDatabase(path, version: 1, onCreate: _onCreate);
     return theDb;
   }
@@ -25,7 +25,7 @@ class DBHelper {
   void _onCreate(Database db, int version) async {
     // When creating the db, create the table
    await db.execute(
-        "CREATE TABLE COVERAGE_DATA(id INTEGER PRIMARY KEY, STORE_CD int, VISIT_DATE TEXT, STORE_IMG_IN TEXT, STORE_IMG_OUT TEXT)");
+        "CREATE TABLE COVERAGE_DATA(id INTEGER PRIMARY KEY, STORE_CD int, VISIT_DATE TEXT, STORE_IMG_IN TEXT, STORE_IMG_OUT TEXT, FROM_DEVIATION int)");
     print("Created tables");
   }
 
@@ -40,7 +40,7 @@ class DBHelper {
     var dbClient = await db;
     await dbClient.delete(table_name);
 
-    var test = JSON.decode(responseBody);
+    var test = json.decode(responseBody);
 
     var test_map = json.decode(test);
     var list = test_map[table_name] as List;
@@ -52,27 +52,46 @@ class DBHelper {
     return primary_key;
   }
 
-  Future insertCoverageIn(JCPGetterSetter store_data, String img_path) async{
+  Future insertCoverageIn(JCPGetterSetter store_data, String img_path, int deviation_flag) async{
     var dbClient = await db;
     CoverageGettersetter coverage = new CoverageGettersetter(store_data.STORE_CD,
-        img_path, "",store_data.VISIT_DATE );
+        img_path, "",store_data.VISIT_DATE, deviation_flag);
 
     var primary_key = await dbClient.insert("COVERAGE_DATA", coverage.toMap());
-    // Update some record
+
+    String table_name;
+
+    if(deviation_flag==0){
+      table_name = "JOURNEY_PLAN_SUP";
+    }
+    else{
+      table_name = "DEVIATION_STORE_SUP";
+    }
+
+    // Update store record
     int count = await dbClient.rawUpdate(
-        'UPDATE JOURNEY_PLAN_SUP SET UPLOAD_STATUS = ? WHERE STORE_CD = ?',
+        'UPDATE ' + table_name + ' SET UPLOAD_STATUS = ? WHERE STORE_CD = ?',
         ["I", store_data.STORE_CD]);
     return primary_key;
   }
 
 
-  Future deleteCoverageSpecific(int store_cd) async{
+  Future deleteCoverageSpecific(int store_cd, int deviation_flag) async{
     var dbClient = await db;
     var count = await dbClient
         .rawDelete("DELETE FROM COVERAGE_DATA WHERE STORE_CD = '"+ store_cd.toString() +"'");
 
+    String table_name;
+
+    if(deviation_flag==0){
+      table_name = "JOURNEY_PLAN_SUP";
+    }
+    else{
+      table_name = "DEVIATION_STORE_SUP";
+    }
+
     int count1 = await dbClient.rawUpdate(
-        'UPDATE JOURNEY_PLAN_SUP SET UPLOAD_STATUS = ? WHERE STORE_CD = ?',
+        'UPDATE ' + table_name + ' SET UPLOAD_STATUS = ? WHERE STORE_CD = ?',
         ["U", store_cd]);
   }
 
@@ -102,11 +121,20 @@ class DBHelper {
     });
   }*/
 
-  Future<List<JCPGetterSetter>> getJCPList(String visit_date) async {
+  Future<List<JCPGetterSetter>> getJCPList(String visit_date, int deviation_flag) async {
     List<JCPGetterSetter> storelist = new List();
     try{
+      String table_name;
+
+      if(deviation_flag==0){
+        table_name = "JOURNEY_PLAN_SUP";
+      }
+      else{
+        table_name = "DEVIATION_STORE_SUP";
+      }
+
       var dbClient = await db;
-      List<Map> list = await dbClient.rawQuery("SELECT * FROM JOURNEY_PLAN_SUP where VISIT_DATE= '" + visit_date +"'");
+      List<Map> list = await dbClient.rawQuery("SELECT * FROM "+ table_name +" where VISIT_DATE= '" + visit_date +"'");
 
       for (int i = 0; i < list.length; i++) {
         storelist.add(new JCPGetterSetter(list[i]["STORE_CD"], list[i]["EMP_CD"], list[i]["VISIT_DATE"], list[i]["KEYACCOUNT"], list[i]["STORENAME"], list[i]["CITY"], list[i]["STORETYPE"],
@@ -154,7 +182,7 @@ class DBHelper {
 
     if(list.length>0){
       coverage = new CoverageGettersetter(
-        list[0]["STORE_CD"], list[0]["STORE_IMG_IN"], list[0]["STORE_IMG_OUT"], list[0]["VISIT_DATE"]);
+        list[0]["STORE_CD"], list[0]["STORE_IMG_IN"], list[0]["STORE_IMG_OUT"], list[0]["VISIT_DATE"], list[0]['FROM_DEVIATION']);
     }
 
     return coverage;

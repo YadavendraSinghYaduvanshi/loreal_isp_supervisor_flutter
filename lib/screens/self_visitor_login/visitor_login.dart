@@ -122,7 +122,7 @@ class _VisitorLoginState extends State<VisitorLogin> {
 }
 
 List<VISITOR_LOGIN> parsePhotos(String responseBody) {
-  var test = JSON.decode(responseBody);
+  var test = json.decode(responseBody);
   List<VISITOR_LOGIN> statusList = new List();
 
   if(test==""){

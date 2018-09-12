@@ -24,7 +24,7 @@ class _DownloadDataState extends State<DownloadData>{
   }
 
   //List<String> items = ["Table_Structure", "JOURNEY_PLAN_SUP", "NON_WORKING_REASON"];
-  List<String> items = ["Table_Structure", "JOURNEY_PLAN_SUP","NON_WORKING_REASON"];
+  List<String> items = ["Table_Structure", "JOURNEY_PLAN_SUP","NON_WORKING_REASON", "DEVIATION_STORE_SUP"];
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +61,7 @@ class _DownloadDataState extends State<DownloadData>{
      await http.post(url, body: lData, headers: lHeaders).then((response) {
         print("Response status: ${response.statusCode}");
         print("Response body: ${response.body}");
-        var test = JSON.decode(response.body);
+        var test = json.decode(response.body);
 
         //var test1 = json.decode(test);
 
@@ -82,7 +82,7 @@ class _DownloadDataState extends State<DownloadData>{
 
             if(test==""){
               error_msg = "No journey plan defined for today";
-              var test1 = json.decode(test);
+              //var test1 = json.decode(test);
             }
 
             //
@@ -94,6 +94,10 @@ class _DownloadDataState extends State<DownloadData>{
 
           case "NON_WORKING_REASON":
             _insertData(response.body, "NON_WORKING_REASON");
+            break;
+
+          case "DEVIATION_STORE_SUP":
+            _insertData(response.body, "DEVIATION_STORE_SUP");
             break;
         }
 
@@ -209,7 +213,7 @@ enum DialogDemoAction {
 
 
 List<Table_Structure> parseTableStructure(String responseBody) {
-  var test = JSON.decode(responseBody);
+  var test = json.decode(responseBody);
   List<Table_Structure> statusList = new List();
 
   if(test==""){
@@ -241,7 +245,7 @@ class Table_Structure {
 }
 
 List<JOURNEY_PLAN_SUP> parseSUPJCP(String responseBody) {
-  var test = JSON.decode(responseBody);
+  var test = json.decode(responseBody);
 
   var test1 = json.decode(test);
   var list = test1['JOURNEY_PLAN_SUP'] as List;

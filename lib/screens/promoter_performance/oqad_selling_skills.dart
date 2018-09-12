@@ -131,7 +131,7 @@ class _OQADSellingSkillsState
 }
 
 List<OQAD_SELLING_SKILLS> parsePhotos(String responseBody) {
-  var test = JSON.decode(responseBody);
+  var test = json.decode(responseBody);
   List<OQAD_SELLING_SKILLS>  statusList = new List();
 
   if(test==""){

@@ -141,7 +141,7 @@ class _StorewiseManDaysState extends State<StorewiseManDays> {
 }
 
 List<STOREWISE_MANNED_DAYS> parsePhotos(String responseBody) {
-  var test = JSON.decode(responseBody);
+  var test = json.decode(responseBody);
 
   List<STOREWISE_MANNED_DAYS> statusList = new List();
 
