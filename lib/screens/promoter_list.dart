@@ -31,19 +31,15 @@ class _PromoterListState extends State<PromoterList> {
         title: new Text("Promoter List"),
       ),
       body: Container(
-        decoration: new BoxDecoration(
-          image: new DecorationImage(
-            image: new AssetImage("assets/background2.jpg"),
-            fit: BoxFit.cover,
-          ),
-        ),
+        color: new Color(0xffEEEEEE),
         child: FutureBuilder<List<Promoter>>(
           future: fetchData(),
           builder: (context, snapshot) {
             if (snapshot.hasError) print(snapshot.error);
             //_loadCounter();
             return snapshot.hasData
-                ? PromotersList(promoter: snapshot.data)
+                ? (snapshot.data.length>0?PromotersList(promoter: snapshot.data): new Center(child: new Card(child: new Container(margin: EdgeInsets.all(5.0),
+            child: new Text("No Data found", style: TextStyle(fontSize: 20.0),),),),))
                 : Center(child: CircularProgressIndicator());
           },
         ),
@@ -85,7 +81,7 @@ class _PromoterListState extends State<PromoterList> {
      var response = await http.post(url, body: lData, headers: lHeaders);
      /*   print("Response status: ${response.statusCode}");
       print("Response body: ${response.body}");
-     *//* var test = JSON.decode(response.body);
+     *//* var test = json.decode(response.body);
 
       var test1 = json.decode(test);
       var list = test1['PROMOTER_LIST'] as List;
@@ -107,11 +103,15 @@ class _PromoterListState extends State<PromoterList> {
 // A function that will convert a response body into a List<Photo>
 List<Promoter> parsePhotos(String responseBody) {
 
-  var test = JSON.decode(responseBody);
+  var test = json.decode(responseBody);
+  List<Promoter> promoterList = new List();
+  if(test==""){
+    return promoterList;
+  }
 
   var test1 = json.decode(test);
   var list = test1['PROMOTER_LIST'] as List;
-  List<Promoter> promoterList = list.map((i) => Promoter.fromJson(i)).toList();
+  promoterList = list.map((i) => Promoter.fromJson(i)).toList();
 
   return promoterList;
 

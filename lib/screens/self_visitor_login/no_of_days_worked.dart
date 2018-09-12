@@ -6,28 +6,26 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AttendanceDefaulter3Days extends StatefulWidget {
+class NoDaysWorked extends StatefulWidget {
 /*  String promoter_id;
 
   // In the constructor, require a Todo
-  AttendanceDefaulter3Days({Key key, @required this.promoter_id})
+  NoDaysWorked({Key key, @required this.promoter_id})
       : super(key: key);*/
 
   @override
-  _AttendanceDefaulter3DaysState createState() =>
-      _AttendanceDefaulter3DaysState();
+  _NoDaysWorkedState createState() =>
+      _NoDaysWorkedState();
 }
 
-class _AttendanceDefaulter3DaysState
-    extends State<AttendanceDefaulter3Days> {
+class _NoDaysWorkedState extends State<NoDaysWorked> {
   String user_id, designation, promoter_id;
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
         appBar: new AppBar(
-          title:
-          new Text("Defaulters with 3 days absent"),
+          title: new Text("No Of Days Worked"),
         ),
         body: Container(
           decoration: new BoxDecoration(
@@ -37,17 +35,27 @@ class _AttendanceDefaulter3DaysState
             children: <Widget>[
               new Card(
                 child: new Container(
-                  margin: EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 10.0
-                  ),
+                  margin: EdgeInsets.fromLTRB(10.0, 10.0, 0.0, 10.0),
                   child: new Row(
                     children: <Widget>[
                       new Expanded(
+                        child: new Text(
+                          "Visiter",
+                          style: new TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontSize: 16.0,
+                              fontStyle: FontStyle.normal),
+                        ),
+                      ),
+                      new Expanded(
                         child: new Center(
                           child: new Text(
-                            "Promoters",
+                            "Worked days",
                             style: new TextStyle(
+                                fontWeight: FontWeight.bold,
                                 color: Colors.black,
-                                fontSize: 18.0,
+                                fontSize: 16.0,
                                 fontStyle: FontStyle.normal),
                           ),
                         ),
@@ -57,13 +65,16 @@ class _AttendanceDefaulter3DaysState
                 ),
               ),
               new Expanded(
-                  child: FutureBuilder<List<ABSENT_DEFAULTER_FIVEDAYS>>(
+                  child: FutureBuilder<List<NO_OF_DAYS_WORKED>>(
                     future: fetchData(),
                     builder: (context, snapshot) {
                       if (snapshot.hasError) print(snapshot.error);
                       //_loadCounter();
                       return snapshot.hasData
-                          ?(snapshot.data.length>0? StatusList(status: snapshot.data): new Center(child: new Card(child: new Container(margin: EdgeInsets.all(5.0),
+                          ?
+
+
+                      (snapshot.data.length>0? StatusList(status: snapshot.data): new Center(child: new Card(child: new Container(margin: EdgeInsets.all(5.0),
                         child: new Text("No Data found", style: TextStyle(fontSize: 20.0),),),),))
                           : Center(child: CircularProgressIndicator());
                     },
@@ -73,18 +84,18 @@ class _AttendanceDefaulter3DaysState
         ));
   }
 
-  Future<List<ABSENT_DEFAULTER_FIVEDAYS>> fetchData() async {
+  Future<List<NO_OF_DAYS_WORKED>> fetchData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     //visit_date = prefs.getString('CURRENTDATE');
     user_id = prefs.getString('Userid');
     designation = prefs.getString('Designation');
 
-    print("Attempting to fetch... PROMOTER_LIST ");
+    print("Attempting to fetch... NO_OF_DAYS_WORKED ");
 
     final url = "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/GetAll";
 
     Map lMap = {
-      "Downloadtype": "ABSENT_DEFAULTER_THREEDAYS",
+      "Downloadtype": "NO_OF_DAYS_WORKED",
       "Username": user_id,
       "per1": designation,
       "per2": user_id,
@@ -110,17 +121,17 @@ class _AttendanceDefaulter3DaysState
   }
 }
 
-List<ABSENT_DEFAULTER_FIVEDAYS> parsePhotos(String responseBody) {
+List<NO_OF_DAYS_WORKED> parsePhotos(String responseBody) {
   var test = json.decode(responseBody);
-  List<ABSENT_DEFAULTER_FIVEDAYS> statusList = new List();
+  List<NO_OF_DAYS_WORKED> statusList = new List();
+
   if(test==""){
     return statusList;
   }
-
   var test1 = json.decode(test);
-  var list = test1['ABSENT_DEFAULTER_THREEDAYS'] as List;
-  statusList =
-  list.map((i) => ABSENT_DEFAULTER_FIVEDAYS.fromJson(i)).toList();
+  var list = test1['NO_OF_DAYS_WORKED'] as List;
+   statusList =
+  list.map((i) => NO_OF_DAYS_WORKED.fromJson(i)).toList();
 
   return statusList;
 
@@ -129,21 +140,26 @@ List<ABSENT_DEFAULTER_FIVEDAYS> parsePhotos(String responseBody) {
   return parsed.map<Promoter>((json) => Promoter.fromJson(json)).toList();*/
 }
 
-class ABSENT_DEFAULTER_FIVEDAYS {
-  final String PROMOTER;
+class NO_OF_DAYS_WORKED {
+  final String VISITOR;
+  final int EMP_ID;
+  final int WORKED_DAYS;
 
-  ABSENT_DEFAULTER_FIVEDAYS(
-      {this.PROMOTER});
+  NO_OF_DAYS_WORKED(
+      {this.VISITOR, this.EMP_ID, this.WORKED_DAYS});
 
-  factory ABSENT_DEFAULTER_FIVEDAYS.fromJson(Map<String, dynamic> json) {
-    return ABSENT_DEFAULTER_FIVEDAYS(
-      PROMOTER: json['PROMOTER'] as String,
+  factory NO_OF_DAYS_WORKED.fromJson(Map<String, dynamic> json) {
+    return NO_OF_DAYS_WORKED(
+      VISITOR: json['VISITOR'] as String,
+      EMP_ID: json['EMP_ID'] as int,
+      WORKED_DAYS: json['WORKED_DAYS'] as int,
+
     );
   }
 }
 
 class StatusList extends StatelessWidget {
-  final List<ABSENT_DEFAULTER_FIVEDAYS> status;
+  final List<NO_OF_DAYS_WORKED> status;
 
   StatusList({Key key, this.status}) : super(key: key);
 
@@ -156,24 +172,27 @@ class StatusList extends StatelessWidget {
             child: new GestureDetector(
               onTap: () {
                 print("attendance");
-                /* Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AttendanceDataUploadstatus(promoter_id: status[index].JCP_DATE),
-                  ),
-                );*/
               },
               child: new Container(
                 margin: EdgeInsets.all(10.0),
                 child: new Row(
                   children: <Widget>[
                     new Expanded(
+                      child: new Text(
+                        status[index].VISITOR,
+                        style: new TextStyle(
+                            color: Colors.black,
+                            fontSize: 16.0,
+                            fontStyle: FontStyle.normal),
+                      ),
+                    ),
+                    new Expanded(
                         child: new Center(
                           child: new Text(
-                            status[index].PROMOTER,
+                            status[index].WORKED_DAYS.toString(),
                             style: new TextStyle(
                                 color: Colors.black,
-                                fontSize: 20.0,
+                                fontSize: 16.0,
                                 fontStyle: FontStyle.normal),
                           ),
                         )),

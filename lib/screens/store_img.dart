@@ -10,16 +10,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:async/async.dart';
-/*import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';*/
-
+import 'package:dio/dio.dart';
+import 'package:image/image.dart' as Im;
+import 'dart:math' as Math;
 
 
 class StoreImage extends StatefulWidget {
   JCPGetterSetter store_data;
+  int deviation_flag;
 
   // In the constructor, require a Todo
-  StoreImage({Key key, @required this.store_data}) : super(key: key);
+  StoreImage({Key key, @required this.store_data, this.deviation_flag})
+      : super(key: key);
 
   @override
   _StoreImageState createState() => _StoreImageState();
@@ -56,7 +58,9 @@ class _StoreImageState extends State<StoreImage> {
                   child: new RaisedButton(
                       color: Colors.blue,
                       child: new Text(
-                        widget.store_data.UPLOAD_STATUS == "N"?"Click Store Checkin Image":"Click Store Checkout Image",
+                        widget.store_data.UPLOAD_STATUS == "N"
+                            ? "Click Store Checkin Image"
+                            : "Click Store Checkout Image",
                         style: TextStyle(fontSize: 18.0, color: Colors.white),
                       ),
                       onPressed: () {}),
@@ -66,9 +70,11 @@ class _StoreImageState extends State<StoreImage> {
                         child: new Card(
                           child: new Container(
                             child: Center(
-                              child: result_path != null && filePath!=null? new Image(
-                                image: FileImage(new File(filePath)),
-                              ):new Image(
+                              child: result_path != null && filePath != null
+                                  ? new Image(
+                                      image: FileImage(new File(filePath)),
+                                    )
+                                  : new Image(
                                       image: new AssetImage(
                                           'assets/camera_icon.png'),
                                       height: 100.0,
@@ -78,7 +84,11 @@ class _StoreImageState extends State<StoreImage> {
                           ),
                         ),
                         onTap: () {
-                          opencamera(widget.store_data.STORE_CD);
+                          String img_type =
+                              widget.store_data.UPLOAD_STATUS == "N"
+                                  ? "Checkin_Image"
+                                  : "Checkout_Image";
+                          opencamera(widget.store_data.STORE_CD, img_type);
                         })),
                 new Container(
                   margin:
@@ -92,7 +102,9 @@ class _StoreImageState extends State<StoreImage> {
                       onPressed: () {
                         if (result_path != null) {
                           //insertStoreData(widget.store_data, result_path);
-                          _checkinData(widget.store_data, result_path);
+                          _checkinData(widget.store_data, result_path,
+                              widget.deviation_flag);
+                          //compressImage(null, filePath);
                           //Navigator.of(context).pop();
                         } else {
                           showInSnackBar('Please click image');
@@ -108,33 +120,93 @@ class _StoreImageState extends State<StoreImage> {
 
   //--------------------------
 
- /* Upload(File imageFile) async {
-    var stream = new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
-    var length = await imageFile.length();
+  void compressImage(File imageFile, String file_path) async {
 
-    var uploadURL = "http://gskgtm.parinaam.in/webservice/Imageupload.asmx/";
+    imageFile = new File(file_path);
+
+    Im.Image image = Im.decodeImage(imageFile.readAsBytesSync());
+    Im.Image smallerImage = Im.copyResize(image, 600); // choose the size here, it will maintain aspect ratio
+
+    var compressedImage = new File('$file_path')..writeAsBytesSync(Im.encodeJpg(smallerImage, quality: 90));
+  }
+
+  Upload(File imageFile, String img_name) async {
+/*    var stream = new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
+    var length = await imageFile.length();*/
+
+    /* var uploadURL = "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/GetImages";
     var uri = Uri.parse(uploadURL);
 
     var request = new http.MultipartRequest("POST", uri);
-    var multipartFile = new http.MultipartFile('file', stream, length,
-        filename: imageFile.path,);//basename(imageFile.path));
+    var multipartFile = new http.MultipartFile('file', stream, length, filename: img_name,);//basename(imageFile.path));
+
     //contentType: new MediaType('image', 'png'));
 
     new MultipartBody.Builder()
         .setType(MediaType.parse("multipart/form-data"))
         .addFormDataPart("file", finalFile.getName(), requestFile)
         .addFormDataPart("Foldername", foldername)
-        .build();
-
+        .build();*/
+    //request.fields['Foldername'] = 'StoreImageSup';
+    /* request.fields['file'] = img_name;
     request.files.add(multipartFile);
     var response = await request.send();
     print(response.statusCode);
     response.stream.transform(utf8.decoder).listen((value) {
       print(value);
-    });
-  }*/
-  //--------------------------
+    });*/
 
+    /*   var dio = new Dio();
+    dio.options.baseUrl = "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/GetImages";
+
+    FormData formData = new FormData.from({
+      */ /*"name": "wendux",
+      "age": 25,*/ /*
+      "file": new UploadFileInfo(imageFile, img_name),
+      // In PHP the key must endwith "[]", ("files[]")
+     */ /* "files": [
+        new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
+        new UploadFileInfo(new File("./example/upload.txt"), "upload.txt")
+      ]*/ /*
+    });
+    Response response1 = await dio.post("/token", data: formData);
+    print(response1.data);
+*/
+
+
+      String uploadURL =
+          "http://lipromo.parinaam.in/LoralMerchandising.asmx/Uploadimages";
+      Dio dio = new Dio();
+      FormData formdata = new FormData(); // just like JS
+      formdata.add("file", new UploadFileInfo(imageFile, img_name));
+      formdata.add("Foldername", "StoreImageSup");
+      dio.post(uploadURL,
+          data: formdata,
+          options: Options(
+              method: 'POST',
+              responseType: ResponseType.PLAIN // or ResponseType.json
+          ))
+          .then((response) =>
+          showUploadSuccess('Result' + response.toString(), imageFile))
+          .catchError((error) =>  _AlertDialog());
+
+    //String uploadURL = "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/GetImages";
+
+
+    /* var uri = Uri.parse("http://pub.dartlang.org/packages/create");
+    var request = new http.MultipartRequest("POST", url);
+  */ /* request.fields['user'] = 'nweiz@google.com';
+    request.files.add(new http.MultipartFile.f
+    request.files.add(new http.MultipartFile.fromFile(
+        'package',
+        new File('build/package.tar.gz'),
+        contentType: new MediaType('application', 'x-tar'));
+        request.send().then((response) {
+      if (response.statusCode == 200) print("Uploaded!");
+    });*/
+  }
+
+  //--------------------------
 
   CoverageGettersetter coverage;
 
@@ -157,7 +229,44 @@ class _StoreImageState extends State<StoreImage> {
     }
   }
 
-  _checkinData(JCPGetterSetter jcp, String path) async {
+  _createJCP(JCPGetterSetter jcp, String img_in) async {
+    try {
+      final url =
+          "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/UploadJorneyPlanSup";
+      Map lMap = {
+        "STORE_CD": jcp.STORE_CD,
+        "USER_ID": user_id,
+        "VISIT_DATE": visit_date,
+      };
+
+      String lData = json.encode(lMap);
+      Map<String, String> lHeaders = {};
+      lHeaders = {
+        "Content-type": "application/json",
+        "Accept": "application/json"
+      };
+      await http.post(url, body: lData, headers: lHeaders).then((response) {
+        print("Response status: ${response.statusCode}");
+        print("Response body: ${response.body}");
+        var test = json.decode(response.body);
+        if (test.toString().contains("Success")) {
+          var file = new File(filePath);
+
+          //await _uploadFile(file, img_in);
+          Upload(file, img_in);
+        } else {}
+        //var test1 = json.decode(test);
+      });
+    } catch (Exception) {
+
+      var dialog = await _AlertDialog();
+      if (dialog != null) {
+        // Navigator.of(context).pop();
+      }
+    }
+  }
+
+  _checkinData(JCPGetterSetter jcp, String path, int deviation_flag) async {
     showDialog<DialogDemoAction>(
       context: context,
       barrierDismissible: false,
@@ -185,13 +294,11 @@ class _StoreImageState extends State<StoreImage> {
 
       if (coverage != null) {
         int_time_img = coverage.STORE_IMG_IN;
-      }
-      else{
-        int_time_img ="";
+      } else {
+        int_time_img = "";
       }
 
       out_time_img = path;
-
     } else {
       upload_status = "I";
 
@@ -202,77 +309,123 @@ class _StoreImageState extends State<StoreImage> {
 
     print("Attempting to fetch... ");
 
-    final url =
-        "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/UploadStoreCoverageSup";
+    try {
+      final url =
+          "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/UploadStoreCoverageSup";
 
-    Map lMap = {
-      "STORE_CD": jcp.STORE_CD,
-      "USER_ID": user_id,
-      "VISIT_DATE": visit_date,
-      "IN_TIME": "00:00:00",
-      "OUT_TIME": "00:00:00",
-      "LATITUDE": "0.0",
-      "LONGITUDE": "0.0",
-      "APP_VERSION": "1",
-      "REASON_ID": "0",
-      "REASON_REMARK": "",
-      "IMAGE_URL": int_time_img,
-      "UPLOAD_STATUS": upload_status,
-      "OUT_TIME_IMAGE": out_time_img
-    };
+      Map lMap = {
+        "STORE_CD": jcp.STORE_CD,
+        "USER_ID": user_id,
+        "VISIT_DATE": visit_date,
+        "IN_TIME": "00:00:00",
+        "OUT_TIME": "00:00:00",
+        "LATITUDE": "0.0",
+        "LONGITUDE": "0.0",
+        "APP_VERSION": "1",
+        "REASON_ID": "0",
+        "REASON_REMARK": "",
+        "IMAGE_URL": int_time_img,
+        "UPLOAD_STATUS": upload_status,
+        "OUT_TIME_IMAGE": out_time_img
+      };
 
-    String lData = json.encode(lMap);
-    Map<String, String> lHeaders = {};
-    lHeaders = {
-      "Content-type": "application/json",
-      "Accept": "application/json"
-    };
-    http.post(url, body: lData, headers: lHeaders).then((response) {
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
-      var test = JSON.decode(response.body);
-      if (test.toString().contains("Success")) {
-
-
-        Navigator.pop(context, DialogDemoAction.cancel);
-
-        if(jcp.UPLOAD_STATUS=="N"){
-
-          insertStoreData(jcp, path);
-        }
-        else{
-          deleteCoverageData(jcp, path);
-        }
-
-      } else {}
-      //var test1 = json.decode(test);
-    });
+      String lData = json.encode(lMap);
+      Map<String, String> lHeaders = {};
+      lHeaders = {
+        "Content-type": "application/json",
+        "Accept": "application/json"
+      };
+      await http.post(url, body: lData, headers: lHeaders).then((response) {
+        print("Response status: ${response.statusCode}");
+        print("Response body: ${response.body}");
+        var test = json.decode(response.body);
+        if (test.toString().contains("Success")) {
+          if (jcp.UPLOAD_STATUS == "N") {
+            insertStoreData(jcp, path, deviation_flag);
+          } else {
+            deleteCoverageData(jcp, path, deviation_flag);
+          }
+        } else {}
+        //var test1 = json.decode(test);
+      });
+    } catch (Exception) {
+      //Navigator.pop(context, DialogDemoAction.cancel);
+      var dialog = await _AlertDialog();
+      if (dialog != null) {
+        // Navigator.of(context).pop();
+      }
+    }
   }
 
+  Future<String> _AlertDialog() async {
+    Navigator.pop(context, DialogDemoAction.cancel);
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return new AlertDialog(
+          title: new Text('Alert'),
+          content: new SingleChildScrollView(
+            child: new ListBody(
+              children: <Widget>[
+                new Text('Network Error Please Try Again.'),
+                //new Text('or Password'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text('Ok'),
+              color: new Color(0xffEEEEEE),
+              onPressed: () {
+                Navigator.of(context).pop("ok");
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-  insertStoreData(JCPGetterSetter store_data, String img_in) async {
+  insertStoreData(
+      JCPGetterSetter store_data, String img_in, int deviation_flag) async {
     var dbHelper = DBHelper();
-    int primary_key = await dbHelper.insertCoverageIn(store_data, img_in);
+    int primary_key =
+        await dbHelper.insertCoverageIn(store_data, img_in, deviation_flag);
 
-    if (primary_key > 0) showInSnackBar('Data saved successfully');
+    //if (primary_key > 0) showInSnackBar('Data saved successfully');
 
     var file = new File(filePath);
 
-    //_uploadFile(file, img_in);
+    //await compressImage(file, filePath);
 
-   Navigator.of(context).pop("saved");
+    //await _uploadFile(file, img_in);
+    await Upload(file, img_in);
+
+    //Navigator.of(context).pop("saved");
   }
 
-  deleteCoverageData(JCPGetterSetter store_data, String img_in) async {
+  deleteCoverageData(
+      JCPGetterSetter store_data, String img_in, int deviation_flag) async {
     var dbHelper = DBHelper();
-    int primary_key = await dbHelper.deleteCoverageSpecific(store_data.STORE_CD);
-
+    int primary_key = await dbHelper.deleteCoverageSpecific(
+        store_data.STORE_CD, deviation_flag);
 
     var file = new File(filePath);
 
-    //_uploadFile(file, img_in);
+    //await compressImage(file, filePath);
 
-    Navigator.of(context).pop("saved");
+    if(deviation_flag==0){
+
+      await Upload(file, img_in);
+    }
+    else{
+      //in case of deviation store create JCP
+      _createJCP(store_data, img_in);
+    }
+
+
+    //Navigator.of(context).pop("saved");
 
     //if (primary_key > 0) showInSnackBar('Data saved successfully');
   }
@@ -282,10 +435,18 @@ class _StoreImageState extends State<StoreImage> {
         .showSnackBar(new SnackBar(content: new Text(message)));
   }
 
+  void showUploadSuccess(String message, File file) {
+    Navigator.pop(context, DialogDemoAction.cancel);
+    if (message.contains("Success")) {
+      file.delete();
+    }
+    _showUploadResult();
+  }
+
   List<CameraDescription> cameras;
   String filePath;
 
-  Future<Null> opencamera(int store_cd) async {
+  Future<Null> opencamera(int store_cd, String img_type) async {
     // Fetch the available cameras before initializing the app.
     try {
       cameras = await availableCameras();
@@ -300,6 +461,8 @@ class _StoreImageState extends State<StoreImage> {
         builder: (context) => CameraExampleHome(
               cameras: cameras,
               store_cd: store_cd,
+              user_id: user_id.replaceAll(".", "_"),
+              image_type: img_type,
             ),
       ),
     );
@@ -308,7 +471,10 @@ class _StoreImageState extends State<StoreImage> {
       final Directory extDir = await getExternalStorageDirectory();
       final String dirPath = '${extDir.path}/Pictures/Loreal_ISP_SUP_IMG';
       filePath = '$dirPath/' + result_path;
+
       setState(() {});
+
+      await compressImage(null, filePath);
     }
   }
 
@@ -318,16 +484,16 @@ class _StoreImageState extends State<StoreImage> {
   String _fileContents;
   String kTestString = "Hello world!";
 
-  /*Future<Null> _uploadFile(File file, String file_name) async {
-   *//* final Directory systemTempDir = Directory.systemTemp;
+ /* Future<Null> _uploadFile(File file, String file_name) async {
+    *//* final Directory systemTempDir = Directory.systemTemp;
     final File file = await new File('${systemTempDir.path}/foo.txt').create();
    file.writeAsString(kTestString);
     assert(await file.readAsString() == kTestString);
     final String rand = "${new Random().nextInt(10000)}";*//*
     final StorageReference ref =
-    FirebaseStorage.instance.ref().child(file_name);
-    final StorageUploadTask uploadTask =
-    ref.put(file, StorageMetadata(contentLanguage: "en"));
+        FirebaseStorage.instance.ref().child(file_name);
+    final StorageUploadTask uploadTask = ref.put(
+        file, StorageMetadata(contentLanguage: "en", contentType: "image/jpg"));
 
     final Uri downloadUrl = (await uploadTask.future).downloadUrl;
     final http.Response downloadData = await http.get(downloadUrl);
@@ -335,9 +501,42 @@ class _StoreImageState extends State<StoreImage> {
       _fileContents = downloadData.body;
     });
 
+    if (downloadData.reasonPhrase == "OK") {
+      file.delete();
+    }
+    Navigator.pop(context, DialogDemoAction.cancel);
     Navigator.of(context).pop("saved");
-
   }*/
+
+  Future<Null> _showUploadResult() async {
+    showDialog<DialogDemoAction>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return new AlertDialog(
+          title: new Text('Alert'),
+          content: new SingleChildScrollView(
+            child: new ListBody(
+              children: <Widget>[
+                new Text('Data uploaded successfully'),
+                //new Text('or Password'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text('Ok'),
+              color: new Color(0xffEEEEEE),
+              onPressed: () {
+                Navigator.pop(context, DialogDemoAction.cancel);
+                Navigator.of(context).pop("saved");
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 enum DialogDemoAction {

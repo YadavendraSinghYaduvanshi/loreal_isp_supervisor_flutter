@@ -6,20 +6,20 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AttendanceDefaulter3Days extends StatefulWidget {
+class OQADOverAll extends StatefulWidget {
 /*  String promoter_id;
 
   // In the constructor, require a Todo
-  AttendanceDefaulter3Days({Key key, @required this.promoter_id})
+  OQADOverAll({Key key, @required this.promoter_id})
       : super(key: key);*/
 
   @override
-  _AttendanceDefaulter3DaysState createState() =>
-      _AttendanceDefaulter3DaysState();
+  _OQADOverAllState createState() =>
+      _OQADOverAllState();
 }
 
-class _AttendanceDefaulter3DaysState
-    extends State<AttendanceDefaulter3Days> {
+class _OQADOverAllState
+    extends State<OQADOverAll> {
   String user_id, designation, promoter_id;
 
   @override
@@ -27,7 +27,7 @@ class _AttendanceDefaulter3DaysState
     return new Scaffold(
         appBar: new AppBar(
           title:
-          new Text("Defaulters with 3 days absent"),
+          new Text("OQAD Overall"),
         ),
         body: Container(
           decoration: new BoxDecoration(
@@ -37,17 +37,37 @@ class _AttendanceDefaulter3DaysState
             children: <Widget>[
               new Card(
                 child: new Container(
-                  margin: EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 10.0
+                  margin: EdgeInsets.fromLTRB(10.0, 10.0, 0.0, 10.0
                   ),
                   child: new Row(
                     children: <Widget>[
                       new Expanded(
-                        child: new Center(
-                          child: new Text(
-                            "Promoters",
+                        child: new Text(
+                            "Promoter",
                             style: new TextStyle(
                                 color: Colors.black,
-                                fontSize: 18.0,
+                                fontSize: 16.0,
+                                fontStyle: FontStyle.normal),
+                          ),
+                      ),
+                      new Expanded(
+                        child: new Center(
+                          child: new Text(
+                            "Total Attempted",
+                            style: new TextStyle(
+                                color: Colors.black,
+                                fontSize: 16.0,
+                                fontStyle: FontStyle.normal),
+                          ),
+                        ),
+                      ),
+                      new Expanded(
+                        child: new Center(
+                          child: new Text(
+                            "Correct Response",
+                            style: new TextStyle(
+                                color: Colors.black,
+                                fontSize: 16.0,
                                 fontStyle: FontStyle.normal),
                           ),
                         ),
@@ -57,13 +77,13 @@ class _AttendanceDefaulter3DaysState
                 ),
               ),
               new Expanded(
-                  child: FutureBuilder<List<ABSENT_DEFAULTER_FIVEDAYS>>(
+                  child: FutureBuilder<List<OQAD_OVERALL>>(
                     future: fetchData(),
                     builder: (context, snapshot) {
                       if (snapshot.hasError) print(snapshot.error);
                       //_loadCounter();
                       return snapshot.hasData
-                          ?(snapshot.data.length>0? StatusList(status: snapshot.data): new Center(child: new Card(child: new Container(margin: EdgeInsets.all(5.0),
+                          ? (snapshot.data.length>0? StatusList(status: snapshot.data): new Center(child: new Card(child: new Container(margin: EdgeInsets.all(5.0),
                         child: new Text("No Data found", style: TextStyle(fontSize: 20.0),),),),))
                           : Center(child: CircularProgressIndicator());
                     },
@@ -73,18 +93,18 @@ class _AttendanceDefaulter3DaysState
         ));
   }
 
-  Future<List<ABSENT_DEFAULTER_FIVEDAYS>> fetchData() async {
+  Future<List<OQAD_OVERALL>> fetchData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     //visit_date = prefs.getString('CURRENTDATE');
     user_id = prefs.getString('Userid');
     designation = prefs.getString('Designation');
 
-    print("Attempting to fetch... PROMOTER_LIST ");
+    print("Attempting to fetch... OQAD_OVERALL ");
 
     final url = "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/GetAll";
 
     Map lMap = {
-      "Downloadtype": "ABSENT_DEFAULTER_THREEDAYS",
+      "Downloadtype": "OQAD_OVERALL",
       "Username": user_id,
       "per1": designation,
       "per2": user_id,
@@ -110,17 +130,19 @@ class _AttendanceDefaulter3DaysState
   }
 }
 
-List<ABSENT_DEFAULTER_FIVEDAYS> parsePhotos(String responseBody) {
+List<OQAD_OVERALL> parsePhotos(String responseBody) {
   var test = json.decode(responseBody);
-  List<ABSENT_DEFAULTER_FIVEDAYS> statusList = new List();
+
+  List<OQAD_OVERALL> statusList = new List();
+
   if(test==""){
     return statusList;
   }
 
   var test1 = json.decode(test);
-  var list = test1['ABSENT_DEFAULTER_THREEDAYS'] as List;
+  var list = test1['OQAD_OVERALL'] as List;
   statusList =
-  list.map((i) => ABSENT_DEFAULTER_FIVEDAYS.fromJson(i)).toList();
+  list.map((i) => OQAD_OVERALL.fromJson(i)).toList();
 
   return statusList;
 
@@ -129,21 +151,27 @@ List<ABSENT_DEFAULTER_FIVEDAYS> parsePhotos(String responseBody) {
   return parsed.map<Promoter>((json) => Promoter.fromJson(json)).toList();*/
 }
 
-class ABSENT_DEFAULTER_FIVEDAYS {
+class OQAD_OVERALL {
   final String PROMOTER;
+  final int EMP_CD;
+  final int TOTAL_ATTEMPTED;
+  final int CORRECT_RESPONSE;
 
-  ABSENT_DEFAULTER_FIVEDAYS(
-      {this.PROMOTER});
+  OQAD_OVERALL(
+      {this.PROMOTER, this.EMP_CD, this.TOTAL_ATTEMPTED, this.CORRECT_RESPONSE,});
 
-  factory ABSENT_DEFAULTER_FIVEDAYS.fromJson(Map<String, dynamic> json) {
-    return ABSENT_DEFAULTER_FIVEDAYS(
+  factory OQAD_OVERALL.fromJson(Map<String, dynamic> json) {
+    return OQAD_OVERALL(
       PROMOTER: json['PROMOTER'] as String,
+      EMP_CD: json['EMP_CD'] as int,
+      TOTAL_ATTEMPTED: json['TOTAL_ATTEMPTED'] as int,
+      CORRECT_RESPONSE: json['CORRECT_RESPONSE'] as int,
     );
   }
 }
 
 class StatusList extends StatelessWidget {
-  final List<ABSENT_DEFAULTER_FIVEDAYS> status;
+  final List<OQAD_OVERALL> status;
 
   StatusList({Key key, this.status}) : super(key: key);
 
@@ -168,12 +196,31 @@ class StatusList extends StatelessWidget {
                 child: new Row(
                   children: <Widget>[
                     new Expanded(
-                        child: new Center(
-                          child: new Text(
+                        child: new Text(
                             status[index].PROMOTER,
                             style: new TextStyle(
                                 color: Colors.black,
-                                fontSize: 20.0,
+                                fontSize: 16.0,
+                                fontStyle: FontStyle.normal),
+                          ),
+                        ),
+                    new Expanded(
+                        child: new Center(
+                          child: new Text(
+                            status[index].TOTAL_ATTEMPTED.toString(),
+                            style: new TextStyle(
+                                color: Colors.black,
+                                fontSize: 16.0,
+                                fontStyle: FontStyle.normal),
+                          ),
+                        )),
+                    new Expanded(
+                        child: new Center(
+                          child: new Text(
+                            status[index].CORRECT_RESPONSE.toString(),
+                            style: new TextStyle(
+                                color: Colors.black,
+                                fontSize:16.0,
                                 fontStyle: FontStyle.normal),
                           ),
                         )),

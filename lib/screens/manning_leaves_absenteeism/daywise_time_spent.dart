@@ -6,28 +6,25 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AttendanceDataUploadstatus extends StatefulWidget {
-  String promoter_id;
+class StorewiseManDays extends StatefulWidget {
+/*  String promoter_id;
 
   // In the constructor, require a Todo
-  AttendanceDataUploadstatus({Key key, @required this.promoter_id})
-      : super(key: key);
+  StorewiseManDays({Key key, @required this.promoter_id})
+      : super(key: key);*/
 
   @override
-  _AttendanceDataUploadstatusState createState() =>
-      _AttendanceDataUploadstatusState();
+  _StorewiseManDaysState createState() => _StorewiseManDaysState();
 }
 
-class _AttendanceDataUploadstatusState
-    extends State<AttendanceDataUploadstatus> {
+class _StorewiseManDaysState extends State<StorewiseManDays> {
   String user_id, designation, promoter_id;
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
         appBar: new AppBar(
-          title:
-              new Text("Attendance Data Upload Status - " + widget.promoter_id),
+          title: new Text("Storewise Man Days"),
         ),
         body: Container(
           decoration: new BoxDecoration(
@@ -37,17 +34,27 @@ class _AttendanceDataUploadstatusState
             children: <Widget>[
               new Card(
                 child: new Container(
-                  margin: EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 10.0
-                  ),
+                  margin: EdgeInsets.fromLTRB(10.0, 10.0, 0.0, 10.0),
                   child: new Row(
                     children: <Widget>[
                       new Expanded(
+                        child: new Text(
+                          "Store",
+                          style: new TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontSize: 16.0,
+                              fontStyle: FontStyle.normal),
+                        ),
+                      ),
+                      new Expanded(
                         child: new Center(
                           child: new Text(
-                            "JCP Date",
+                            "Planned",
                             style: new TextStyle(
+                                fontWeight: FontWeight.bold,
                                 color: Colors.black,
-                                fontSize: 18.0,
+                                fontSize: 16.0,
                                 fontStyle: FontStyle.normal),
                           ),
                         ),
@@ -55,21 +62,11 @@ class _AttendanceDataUploadstatusState
                       new Expanded(
                         child: new Center(
                           child: new Text(
-                            "Upload Status",
+                            "Achievement",
                             style: new TextStyle(
+                                fontWeight: FontWeight.bold,
                                 color: Colors.black,
-                                fontSize: 18.0,
-                                fontStyle: FontStyle.normal),
-                          ),
-                        ),
-                      ),
-                      new Expanded(
-                        child: new Center(
-                          child: new Text(
-                            "Attendance",
-                            style: new TextStyle(
-                                color: Colors.black,
-                                fontSize: 18.0,
+                                fontSize: 16.0,
                                 fontStyle: FontStyle.normal),
                           ),
                         ),
@@ -79,37 +76,48 @@ class _AttendanceDataUploadstatusState
                 ),
               ),
               new Expanded(
-                  child: FutureBuilder<List<ATTENDANCE_DATAUPLOAD_STATUS>>(
-                future: fetchData("${widget.promoter_id}"),
+                  child: FutureBuilder<List<STOREWISE_MANNED_DAYS>>(
+                future: fetchData(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) print(snapshot.error);
                   //_loadCounter();
                   return snapshot.hasData
-                      ? StatusList(status: snapshot.data)
+                      ? (snapshot.data.length > 0
+                          ? StatusList(status: snapshot.data)
+                          : new Center(
+                              child: new Card(
+                                child: new Container(
+                                  margin: EdgeInsets.all(5.0),
+                                  child: new Text(
+                                    "No Data found",
+                                    style: TextStyle(fontSize: 20.0),
+                                  ),
+                                ),
+                              ),
+                            ))
                       : Center(child: CircularProgressIndicator());
                 },
-              ))
+              )),
             ],
           ),
         ));
   }
 
-  Future<List<ATTENDANCE_DATAUPLOAD_STATUS>> fetchData(
-      String promoter_id) async {
+  Future<List<STOREWISE_MANNED_DAYS>> fetchData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     //visit_date = prefs.getString('CURRENTDATE');
     user_id = prefs.getString('Userid');
     designation = prefs.getString('Designation');
 
-    print("Attempting to fetch... PROMOTER_LIST ");
+    print("Attempting to fetch... STOREWISE_MANNED_DAYS ");
 
     final url = "http://lipromo.parinaam.in/Webservice/Liwebservice.svc/GetAll";
 
     Map lMap = {
-      "Downloadtype": "ATTENDANCE_DATAUPLOAD_STATUS",
+      "Downloadtype": "STOREWISE_MANNED_DAYS",
       "Username": user_id,
       "per1": designation,
-      "per2": promoter_id,
+      "per2": user_id,
       "per3": "0",
       "per4": "0",
       "per5": "0",
@@ -132,13 +140,19 @@ class _AttendanceDataUploadstatusState
   }
 }
 
-List<ATTENDANCE_DATAUPLOAD_STATUS> parsePhotos(String responseBody) {
+List<STOREWISE_MANNED_DAYS> parsePhotos(String responseBody) {
   var test = json.decode(responseBody);
 
+  List<STOREWISE_MANNED_DAYS> statusList = new List();
+
+  if (test == "") {
+    return statusList;
+  }
+
   var test1 = json.decode(test);
-  var list = test1['ATTENDANCE_DATAUPLOAD_STATUS'] as List;
-  List<ATTENDANCE_DATAUPLOAD_STATUS> statusList =
-      list.map((i) => ATTENDANCE_DATAUPLOAD_STATUS.fromJson(i)).toList();
+  var list = test1['STOREWISE_MANNED_DAYS'] as List;
+
+  statusList = list.map((i) => STOREWISE_MANNED_DAYS.fromJson(i)).toList();
 
   return statusList;
 
@@ -147,25 +161,25 @@ List<ATTENDANCE_DATAUPLOAD_STATUS> parsePhotos(String responseBody) {
   return parsed.map<Promoter>((json) => Promoter.fromJson(json)).toList();*/
 }
 
-class ATTENDANCE_DATAUPLOAD_STATUS {
-  final String JCP_DATE;
-  final String DATA_UPLOAD;
-  final String ATTENDANCE_STATUS;
+class STOREWISE_MANNED_DAYS {
+  final int Store_cd, PLANNED, ACHIEVEMENT;
+  final String STORE;
 
-  ATTENDANCE_DATAUPLOAD_STATUS(
-      {this.JCP_DATE, this.DATA_UPLOAD, this.ATTENDANCE_STATUS});
+  STOREWISE_MANNED_DAYS(
+      {this.Store_cd, this.PLANNED, this.ACHIEVEMENT, this.STORE});
 
-  factory ATTENDANCE_DATAUPLOAD_STATUS.fromJson(Map<String, dynamic> json) {
-    return ATTENDANCE_DATAUPLOAD_STATUS(
-      JCP_DATE: json['JCP_DATE'] as String,
-      DATA_UPLOAD: json['DATA_UPLOAD'] as String,
-      ATTENDANCE_STATUS: json['ATTENDANCE_STATUS'] as String,
+  factory STOREWISE_MANNED_DAYS.fromJson(Map<String, dynamic> json) {
+    return STOREWISE_MANNED_DAYS(
+      Store_cd: json['Store_cd'] as int,
+      PLANNED: json['PLANNED'] as int,
+      ACHIEVEMENT: json['ACHIEVEMENT'] as int,
+      STORE: json['STORE'] as String,
     );
   }
 }
 
 class StatusList extends StatelessWidget {
-  final List<ATTENDANCE_DATAUPLOAD_STATUS> status;
+  final List<STOREWISE_MANNED_DAYS> status;
 
   StatusList({Key key, this.status}) : super(key: key);
 
@@ -190,32 +204,31 @@ class StatusList extends StatelessWidget {
             child: new Row(
               children: <Widget>[
                 new Expanded(
-                    child: new Center(
                   child: new Text(
-                    status[index].JCP_DATE,
+                    status[index].STORE,
                     style: new TextStyle(
                         color: Colors.black,
-                        fontSize: 20.0,
+                        fontSize: 16.0,
+                        fontStyle: FontStyle.normal),
+                  ),
+                ),
+                new Expanded(
+                    child: new Center(
+                  child: new Text(
+                    status[index].PLANNED.toString(),
+                    style: new TextStyle(
+                        color: Colors.black,
+                        fontSize: 16.0,
                         fontStyle: FontStyle.normal),
                   ),
                 )),
                 new Expanded(
                     child: new Center(
                   child: new Text(
-                    status[index].DATA_UPLOAD,
+                    status[index].ACHIEVEMENT.toString(),
                     style: new TextStyle(
                         color: Colors.black,
-                        fontSize: 20.0,
-                        fontStyle: FontStyle.normal),
-                  ),
-                )),
-                new Expanded(
-                    child: new Center(
-                  child: new Text(
-                    status[index].ATTENDANCE_STATUS,
-                    style: new TextStyle(
-                        color: Colors.black,
-                        fontSize: 20.0,
+                        fontSize: 16.0,
                         fontStyle: FontStyle.normal),
                   ),
                 )),

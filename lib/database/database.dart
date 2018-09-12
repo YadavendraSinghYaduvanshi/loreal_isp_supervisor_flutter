@@ -36,7 +36,7 @@ Future insertData(String responseBody, String table_name) async {
 
   await db.delete(table_name);
 
-  var test = JSON.decode(responseBody);
+  var test = json.decode(responseBody);
 
   var test_map = json.decode(test);
   var list = test_map[table_name] as List;

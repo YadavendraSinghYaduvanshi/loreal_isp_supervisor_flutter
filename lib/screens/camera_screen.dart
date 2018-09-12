@@ -14,9 +14,11 @@ class CameraExampleHome extends StatefulWidget {
 
   //int store_cd;
   int store_cd;
+  String user_id;
+  String image_type;
 
   // In the constructor, require a Todo
-  CameraExampleHome({Key key, @required this.cameras, this.store_cd}) : super(key: key);
+  CameraExampleHome({Key key, @required this.cameras, this.store_cd, this.user_id, this.image_type}) : super(key: key);
 
   @override
   _CameraExampleHomeState createState() {
@@ -275,7 +277,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
     return cam_change;
   }
 
-  String timestamp() => "StoreImg-"+ widget.store_cd.toString() +"" +new DateTime.now().millisecondsSinceEpoch.toString();
+  String timestamp() => "Store_"+widget.image_type+"-"+widget.user_id+"-Store_CD-"+ widget.store_cd.toString() +"_" +new DateTime.now().millisecondsSinceEpoch.toString();
 
   void showInSnackBar(String message) {
     _scaffoldKey.currentState
@@ -286,6 +288,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
     if (controller != null) {
       await controller.dispose();
     }
+    //set image quality low
     controller = new CameraController(cameraDescription, ResolutionPreset.high);
 
     // If the controller is updated then update the UI.

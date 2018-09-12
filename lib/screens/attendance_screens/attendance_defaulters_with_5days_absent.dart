@@ -63,7 +63,8 @@ class _AttendanceDefaulter5DaysState
                       if (snapshot.hasError) print(snapshot.error);
                       //_loadCounter();
                       return snapshot.hasData
-                          ? StatusList(status: snapshot.data)
+                          ? (snapshot.data.length>0? StatusList(status: snapshot.data): new Center(child: new Card(child: new Container(margin: EdgeInsets.all(5.0),
+                        child: new Text("No Data found", style: TextStyle(fontSize: 20.0),),),),))
                           : Center(child: CircularProgressIndicator());
                     },
                   ))
@@ -110,12 +111,15 @@ class _AttendanceDefaulter5DaysState
 }
 
 List<ABSENT_DEFAULTER_FIVEDAYS> parsePhotos(String responseBody) {
-  var test = JSON.decode(responseBody);
-
+  var test = json.decode(responseBody);
+  List<ABSENT_DEFAULTER_FIVEDAYS> statusList = new List();
+  if(test==""){
+    return statusList;
+  }
   var test1 = json.decode(test);
   var list = test1['ABSENT_DEFAULTER_FIVEDAYS'] as List;
-  List<ABSENT_DEFAULTER_FIVEDAYS> statusList =
-  list.map((i) => ABSENT_DEFAULTER_FIVEDAYS.fromJson(i)).toList();
+
+  statusList = list.map((i) => ABSENT_DEFAULTER_FIVEDAYS.fromJson(i)).toList();
 
   return statusList;
 

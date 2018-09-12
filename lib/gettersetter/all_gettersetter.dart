@@ -51,6 +51,25 @@ class JOURNEY_PLAN_SUP {
   }
 }
 
+class NonWorkingReasonGetterSetter{
+
+  int _REASON_CD;
+  String _REASON;
+  int _ENTRY_ALLOW, _IMAGE_ALLOW;
+
+  int get REASON_CD => _REASON_CD;
+
+  NonWorkingReasonGetterSetter(this._REASON_CD, this._REASON, this._ENTRY_ALLOW,
+      this._IMAGE_ALLOW);
+
+  String get REASON => _REASON;
+
+  int get ENTRY_ALLOW => _ENTRY_ALLOW;
+
+  get IMAGE_ALLOW => _IMAGE_ALLOW;
+
+}
+
 class JCPGetterSetter {
   int _STORE_CD;
   int _EMP_CD;
@@ -163,13 +182,14 @@ class JCPGetterSetter {
 class CoverageGettersetter{
 
   String KEY_STORE_CD = "STORE_CD", KEY_STORE_IMG_IN = "STORE_IMG_IN",
-      KEY_STORE_IMG_OUT = "STORE_IMG_OUT", KEY_VISIT_DATE = "VISIT_DATE";
-  int _STORE_CD;
+      KEY_STORE_IMG_OUT = "STORE_IMG_OUT", KEY_VISIT_DATE = "VISIT_DATE", KEY_FROM_DEVIATION = "FROM_DEVIATION";
+  int _STORE_CD, _FROM_DEVIATION;
   String _STORE_IMG_IN, _STORE_IMG_OUT, _VISIT_DATE;
 
-  CoverageGettersetter(this._STORE_CD, this._STORE_IMG_IN, this._STORE_IMG_OUT, this._VISIT_DATE);
+  CoverageGettersetter(this._STORE_CD, this._STORE_IMG_IN, this._STORE_IMG_OUT, this._VISIT_DATE, this._FROM_DEVIATION);
 
   int get STORE_CD => _STORE_CD;
+  int get FROM_DEVIATION => _FROM_DEVIATION;
 
   get STORE_IMG_OUT => _STORE_IMG_OUT;
 
@@ -179,6 +199,7 @@ class CoverageGettersetter{
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{
       KEY_STORE_CD: _STORE_CD,
+      KEY_FROM_DEVIATION: _FROM_DEVIATION,
       KEY_STORE_IMG_IN: _STORE_IMG_IN,
       KEY_STORE_IMG_OUT: _STORE_IMG_OUT,
       KEY_VISIT_DATE: _VISIT_DATE
