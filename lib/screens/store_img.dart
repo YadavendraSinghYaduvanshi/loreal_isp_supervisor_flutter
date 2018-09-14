@@ -31,6 +31,7 @@ class _StoreImageState extends State<StoreImage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   String visit_date, user_id;
   String result_path;
+  bool isCompressed = false;
 
   @override
   void initState() {
@@ -120,17 +121,18 @@ class _StoreImageState extends State<StoreImage> {
 
   //--------------------------
 
-  void compressImage(File imageFile, String file_path) async {
+  Future<Null> compressImage(String file_path) async {
 
-    imageFile = new File(file_path);
+    File imageFile = new File(file_path);
 
     Im.Image image = Im.decodeImage(imageFile.readAsBytesSync());
     Im.Image smallerImage = Im.copyResize(image, 600); // choose the size here, it will maintain aspect ratio
 
     var compressedImage = new File('$file_path')..writeAsBytesSync(Im.encodeJpg(smallerImage, quality: 90));
+    isCompressed = true;
   }
 
-  Upload(File imageFile, String img_name) async {
+  Upload(File imageFile, String img_name, String file_path) async {
 /*    var stream = new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
     var length = await imageFile.length();*/
 
@@ -172,7 +174,9 @@ class _StoreImageState extends State<StoreImage> {
     Response response1 = await dio.post("/token", data: formData);
     print(response1.data);
 */
-
+    if(!isCompressed){
+      await compressImage(file_path);
+    }
 
       String uploadURL =
           "http://lipromo.parinaam.in/LoralMerchandising.asmx/Uploadimages";
@@ -253,7 +257,7 @@ class _StoreImageState extends State<StoreImage> {
           var file = new File(filePath);
 
           //await _uploadFile(file, img_in);
-          Upload(file, img_in);
+          Upload(file, img_in, filePath);
         } else {}
         //var test1 = json.decode(test);
       });
@@ -400,7 +404,7 @@ class _StoreImageState extends State<StoreImage> {
     //await compressImage(file, filePath);
 
     //await _uploadFile(file, img_in);
-    await Upload(file, img_in);
+    await Upload(file, img_in, filePath);
 
     //Navigator.of(context).pop("saved");
   }
@@ -417,7 +421,7 @@ class _StoreImageState extends State<StoreImage> {
 
     if(deviation_flag==0){
 
-      await Upload(file, img_in);
+      await Upload(file, img_in, filePath);
     }
     else{
       //in case of deviation store create JCP
@@ -472,9 +476,29 @@ class _StoreImageState extends State<StoreImage> {
       final String dirPath = '${extDir.path}/Pictures/Loreal_ISP_SUP_IMG';
       filePath = '$dirPath/' + result_path;
 
-      setState(() {});
+ /*     showDialog<DialogDemoAction>(
+        context: context,
+        barrierDismissible: false,
+        child: new Dialog(
+            child: new Padding(
+              padding: EdgeInsets.all(25.0),
+              child: new Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  new CircularProgressIndicator(),
+                  new SizedBox(width: 20.0),
+                  new Text(
+                    "Verifying...",
+                    style: new TextStyle(fontSize: 18.0),
+                  ),
+                ],
+              ),
+            )),
+      );*/
 
-      await compressImage(null, filePath);
+     setState(() {});
+
+      //await compressImage(filePath);
     }
   }
 

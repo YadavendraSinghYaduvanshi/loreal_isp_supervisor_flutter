@@ -529,7 +529,7 @@ class _MyDialogState extends State<MyDialog> {
                       onPressed: () {
 
                         Navigator.of(context).pop(widget.path);
-
+                        
                         //Navigator.of(context).pop(new ImageGettersetter(widget.path));
 
                        /* Navigator.of(context).pushNamedAndRemoveUntil(
