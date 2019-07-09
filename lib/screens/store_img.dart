@@ -121,7 +121,7 @@ class _StoreImageState extends State<StoreImage> {
 
   //--------------------------
 
-  Future<Null> compressImage(String file_path) async {
+  Future compressImage(String file_path) async {
 
     File imageFile = new File(file_path);
 
@@ -221,7 +221,7 @@ class _StoreImageState extends State<StoreImage> {
     SharedPreferences.getInstance().then((SharedPreferences sp) {
       prefs = sp;
       visit_date = prefs.getString('CURRENTDATE');
-      user_id = prefs.getString('Userid');
+      user_id = prefs.getString('Userid_Main');
       // will be null if never previously saved
     });
     visit_date = prefs.getString('CURRENTDATE');

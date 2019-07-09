@@ -8,7 +8,6 @@ import 'package:video_player/video_player.dart';
 import 'package:simple_permissions/simple_permissions.dart';
 import 'package:loreal_isp_supervisor_flutter/gettersetter/all_gettersetter.dart';
 
-
 class CameraExampleHome extends StatefulWidget {
   List<CameraDescription> cameras;
 
@@ -18,7 +17,13 @@ class CameraExampleHome extends StatefulWidget {
   String image_type;
 
   // In the constructor, require a Todo
-  CameraExampleHome({Key key, @required this.cameras, this.store_cd, this.user_id, this.image_type}) : super(key: key);
+  CameraExampleHome(
+      {Key key,
+      @required this.cameras,
+      this.store_cd,
+      this.user_id,
+      this.image_type})
+      : super(key: key);
 
   @override
   _CameraExampleHomeState createState() {
@@ -74,8 +79,8 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
     }
 
     //check for WriteExternalStorage
-    res = await SimplePermissions
-        .checkPermission(Permission.WriteExternalStorage);
+    res = await SimplePermissions.checkPermission(
+        Permission.WriteExternalStorage);
 
     if (!res) {
       requestPermission(Permission.WriteExternalStorage);
@@ -88,8 +93,8 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
       Navigator.pop(context);
     }
 
-    res = await SimplePermissions
-        .checkPermission(Permission.WriteExternalStorage);
+    res = await SimplePermissions.checkPermission(
+        Permission.WriteExternalStorage);
     if (!res) {
       Navigator.pop(context);
     }
@@ -133,13 +138,10 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
               new Expanded(child: _captureControlRowWidget()),
               new Padding(
                 padding: const EdgeInsets.all(5.0),
-                child:
-                _cameraTogglesRowWidget(),
+                child: _cameraTogglesRowWidget(),
               ),
             ],
           ),
-
-
         ],
       ),
     );
@@ -277,7 +279,15 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
     return cam_change;
   }
 
-  String timestamp() => "Store_"+widget.image_type+"-"+widget.user_id+"-Store_CD-"+ widget.store_cd.toString() +"_" +new DateTime.now().millisecondsSinceEpoch.toString();
+  String timestamp() =>
+      "Store_" +
+      widget.image_type +
+      "-" +
+      widget.user_id +
+      "-Store_CD-" +
+      widget.store_cd.toString() +
+      "_" +
+      new DateTime.now().millisecondsSinceEpoch.toString();
 
   void showInSnackBar(String message) {
     _scaffoldKey.currentState
@@ -405,6 +415,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
     }
     await vcontroller.play();
   }
+
   //this image file name is returned
   String img_file_name;
 
@@ -487,17 +498,18 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
     );
   }
 
-  Future _openAddEntryDialog() async{
-    var img_path = await Navigator.of(context).push(new MaterialPageRoute<String>(
-        builder: (BuildContext context) {
-          return new MyDialog(path: imagePath,);
-        },
-        fullscreenDialog: true
-    ));
+  Future _openAddEntryDialog() async {
+    var img_path =
+        await Navigator.of(context).push(new MaterialPageRoute<String>(
+            builder: (BuildContext context) {
+              return new MyDialog(
+                path: imagePath,
+              );
+            },
+            fullscreenDialog: true));
 
-    if(img_path!=null){
-      if(img_path!="Cancel")
-      Navigator.of(context).pop(img_file_name);
+    if (img_path != null) {
+      if (img_path != "Cancel") Navigator.of(context).pop(img_file_name);
     }
   }
 }
@@ -515,7 +527,7 @@ class _MyDialogState extends State<MyDialog> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
+        margin: EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
         child: new Center(
           child: new Column(
             children: <Widget>[
@@ -527,12 +539,11 @@ class _MyDialogState extends State<MyDialog> {
                       child: new Text('Ok'),
                       color: new Color(0xffEEEEEE),
                       onPressed: () {
-
                         Navigator.of(context).pop(widget.path);
-                        
+
                         //Navigator.of(context).pop(new ImageGettersetter(widget.path));
 
-                       /* Navigator.of(context).pushNamedAndRemoveUntil(
+                        /* Navigator.of(context).pushNamedAndRemoveUntil(
                             '/Reports', (Route<dynamic> route) => false);*/
                       },
                     ),
@@ -552,8 +563,7 @@ class _MyDialogState extends State<MyDialog> {
               )
             ],
           ),
-        )
-      );
+        ));
   }
 }
 

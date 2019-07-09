@@ -13,6 +13,7 @@ if (flutterRoot == null) {
 
 apply plugin: 'com.android.application'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+apply plugin: 'io.fabric'
 
 android {
     compileSdkVersion 27
@@ -38,6 +39,10 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+
+    dexOptions {
+        javaMaxHeapSize "128g"
+    }
 }
 
 flutter {
@@ -48,5 +53,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
 }
 apply plugin: 'com.google.gms.google-services'

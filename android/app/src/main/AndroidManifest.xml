@@ -19,7 +19,8 @@
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="Loreal ISP Supervisor"
-        android:icon="@drawable/parinaam_logo">
+        android:icon="@drawable/parinaam_logo"
+        android:largeHeap="true">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
