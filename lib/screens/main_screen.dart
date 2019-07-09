@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:loreal_isp_supervisor_flutter/database/database.dart';
 import 'store_list.dart';
+import 'supervisor_list.dart';
 
 import 'package:async/async.dart';
 import 'dart:io';
@@ -62,7 +63,7 @@ class _Main_ActivityState extends State<Main_Activity>
 
   var notice_url = "http://gskgtm.parinaam.in/notice/notice.html";
   var visit_date;
-  static var userId;
+  static var userId, designation;
 
   static BuildContext context_global;
 
@@ -109,7 +110,22 @@ class _Main_ActivityState extends State<Main_Activity>
       onTap: () {
         print("Reports clicked");
         Navigator.of(context_global).pop();
-        Navigator.of(context_global).pushNamed('/Reports');
+        if(designation=="Supervisor"){
+
+          setSupervisor(userId, designation);
+          Navigator.of(context_global).pushNamed('/Reports');
+
+        }
+        else{
+          //Navigator.of(context_global).pushNamed('/SupervisorList');
+          Navigator.push(
+            context_global,
+            MaterialPageRoute(
+              builder: (context) => SupervisorList(),
+            ),
+          );
+        }
+
       },
       child: new Container(
         child: new Row(children: <Widget>[
@@ -121,6 +137,15 @@ class _Main_ActivityState extends State<Main_Activity>
           home
         ]),
       ));
+
+  //set preference data
+  static Future setSupervisor(var user_id, var designation) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString('Userid', user_id);
+    await prefs.setString('Designation', designation);
+
+  }
 
   static Text daily_entry = new Text("Daily Entry",
       style: new TextStyle(
@@ -305,7 +330,8 @@ class _Main_ActivityState extends State<Main_Activity>
     SharedPreferences prefs = await SharedPreferences.getInstance();
     visit_date = prefs.getString('CURRENTDATE');
     notice_url = prefs.getString('Notice');
-    userId = prefs.getString('Userid');
+    userId = prefs.getString('Userid_Main');
+    designation = prefs.getString('Designation_Main');
     //_fetchData(userId);
   }
 

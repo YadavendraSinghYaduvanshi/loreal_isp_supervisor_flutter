@@ -288,7 +288,7 @@ class _LoginNewState extends State<LoginNew> {
   _loadPrefData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     visit_date = prefs.getString('CURRENTDATE');
-    userId = prefs.getString('Userid');
+    userId = prefs.getString('Userid_Main');
   }
 
   launchURL(String url) async {
@@ -411,15 +411,15 @@ class _LoginNewState extends State<LoginNew> {
     );
   }
 
-  //Incrementing counter after click
+  //set preference data
   Future _incrementCounter(var data) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    prefs.setString('Userid', _uid.text);
+    prefs.setString('Userid_Main', _uid.text);
     prefs.setString('Password', _psw.text);
     prefs.setString('CURRENTDATE', data['CURRENTDATE']);
     prefs.setString('Notice', data['Notice']);
-    prefs.setString('Designation', data['RIGHTNAME']);
+    prefs.setString('Designation_Main', data['RIGHTNAME']);
 
     Navigator.of(context_global).pop();
     Navigator.pushReplacementNamed(context_global, '/MainPage');
